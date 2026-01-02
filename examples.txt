@@ -1,0 +1,1049 @@
+Things to remember
+
+1. Policies applied at parent are inherited to child compartments
+2. Only vairables provided here are supported in policy syntax, if user asks outside it, tell them its not supported.
+3. when generating policies apply policies with least privilege at parent compartment and more specific access at compartment.
+
+[
+    {
+        "syntax": "allow group <group_name> to manage all-resources in compartment <compartment_name>",
+        "example": "allow group Admins to manage all-resources in compartment Project-A",
+        "description": "This policy grants the 'Admins' group full management access to all resources within the 'Project-A' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to use virtual-network-family in compartment <compartment_name>",
+        "example": "allow group NetworkAdmins to use virtual-network-family in compartment Networking",
+        "description": "This policy allows the 'NetworkAdmins' group to use networking resources, such as virtual cloud networks and subnets, within the 'Networking' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to read instances in compartment <compartment_name>",
+        "example": "allow group Auditors to read instances in compartment Finance",
+        "description": "This policy permits the 'Auditors' group to read (view) compute instances in the 'Finance' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to inspect buckets in compartment <compartment_name>",
+        "example": "allow group Viewers to inspect buckets in compartment DataStorage",
+        "description": "This policy enables the 'Viewers' group to list Object Storage buckets in the 'DataStorage' compartment without accessing the data inside."
+    },
+    {
+        "syntax": "allow group <group_name> to manage users in tenancy",
+        "example": "allow group HelpDesk to manage users in tenancy",
+        "description": "This policy grants the 'HelpDesk' group the ability to create, update, and delete users and their credentials across the entire tenancy."
+    },
+    {
+        "syntax": "allow group <group_name> to manage load-balancers in compartment <compartment_name>",
+        "example": "allow group LoadBalancerAdmins to manage load-balancers in compartment WebApp",
+        "description": "This policy allows the 'LoadBalancerAdmins' group to manage load balancers within the 'WebApp' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to use object-family in compartment <compartment_name>",
+        "example": "allow group DataScientists to use object-family in compartment Research",
+        "description": "This policy permits the 'DataScientists' group to use Object Storage resources, such as buckets and objects, in the 'Research' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to manage dis-workspaces in compartment <compartment_name>",
+        "example": "allow group DataIntegrators to manage dis-workspaces in compartment ETL",
+        "description": "This policy grants the 'DataIntegrators' group full management access to Data Integration workspaces in the 'ETL' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to inspect all-resources in tenancy",
+        "example": "allow group ComplianceTeam to inspect all-resources in tenancy",
+        "description": "This policy enables the 'ComplianceTeam' group to list all resources across the entire tenancy without accessing sensitive information."
+    },
+    {
+        "syntax": "allow group <group_name> to manage volumes in compartment <compartment_name>",
+        "example": "allow group StorageAdmins to manage volumes in compartment Database",
+        "description": "This policy allows the 'StorageAdmins' group to manage block storage volumes in the 'Database' compartment."
+    }
+]
+[
+    {
+        "syntax": "allow group <group_name> to manage users in tenancy",
+        "example": "allow group HelpDesk to manage users in tenancy",
+        "description": "This policy grants the 'HelpDesk' group the ability to create, update, and delete users and their credentials across the entire tenancy."
+    },
+    {
+        "syntax": "allow group <group_name> to inspect all-resources in tenancy",
+        "example": "allow group Auditors to inspect all-resources in tenancy",
+        "description": "This policy permits the 'Auditors' group to list all resources across the entire tenancy without accessing sensitive information."
+    },
+    {
+        "syntax": "allow group <group_name> to manage virtual-network-family in tenancy",
+        "example": "allow group NetworkAdmins to manage virtual-network-family in tenancy",
+        "description": "This policy allows the 'NetworkAdmins' group to manage all components in Networking, including cloud networks, subnets, gateways, virtual circuits, security lists, and route tables, across the entire tenancy."
+    },
+    {
+        "syntax": "allow group <group_name> to manage load-balancers in tenancy",
+        "example": "allow group NetworkAdmins to manage load-balancers in tenancy",
+        "description": "This policy grants the 'NetworkAdmins' group the ability to manage all components in Load Balancer services across the entire tenancy."
+    },
+    {
+        "syntax": "allow group <group_name> to manage instance-family in compartment <compartment_name>",
+        "example": "allow group InstanceLaunchers to manage instance-family in compartment ABC",
+        "description": "This policy permits the 'InstanceLaunchers' group to perform all actions related to compute instances within the 'ABC' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to use volume-family in compartment <compartment_name>",
+        "example": "allow group InstanceLaunchers to use volume-family in compartment ABC",
+        "description": "This policy allows the 'InstanceLaunchers' group to attach and detach existing block storage volumes within the 'ABC' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to use virtual-network-family in compartment <compartment_name>",
+        "example": "allow group InstanceLaunchers to use virtual-network-family in compartment XYZ",
+        "description": "This policy enables the 'InstanceLaunchers' group to utilize networking resources, such as virtual cloud networks and subnets, within the 'XYZ' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to manage instance-images in compartment <compartment_name>",
+        "example": "allow group ImageAdmins to manage instance-images in compartment X",
+        "description": "This policy grants the 'ImageAdmins' group full management access to custom images and compute instances within the 'X' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to manage object-family in compartment <compartment_name>",
+        "example": "allow group ImageAdmins to manage object-family in compartment Y",
+        "description": "This policy permits the 'ImageAdmins' group to manage Object Storage resources, such as buckets and objects, within the 'Y' compartment."
+    },
+    {
+        "syntax": "allow group <group_name> to manage compute-management-family in tenancy",
+        "example": "allow group InstancePoolAdmins to manage compute-management-family in tenancy",
+        "description": "This policy allows the 'InstancePoolAdmins' group to manage instance configurations, instance pools, and cluster networks across the entire tenancy."
+    }
+]
+[
+    {
+        "syntax": "allow group <group_name> to manage <resource_type> in compartment <compartment_name>",
+        "description": "Defines permissions for a group to manage specific resources within a given compartment.",
+        "limitations": [
+            "Cannot exceed 10,000 characters per policy statement.",
+            "Policies are evaluated in order, so specific rules should come before broad ones.",
+            "Policy statements cannot manage tenancy-level resources without explicit 'tenancy' keyword.",
+            "OCI policies applied at parent will be applied to child tenancies.",
+            "Child policies take precedence over parent policies. It is recommended to define minimum access at the parent level and broader access at the child compartment level."
+        ]
+    },
+    {
+        "syntax": "The 'deny' statement is not supported in OCI policy syntax.",
+        "description": "Restricts a group's ability to inspect specific resources within a compartment.",
+        "limitations": [
+            "The 'deny' statement is not supported in OCI policy syntax.",
+            "Deny statements cannot be used in OCI"
+        ]
+    }
+]
+{
+    "tag_based_access_control": {
+        "description": "Using conditions and a set of tag variables, you can write policies to scope access based on the tags that have been applied to a resource. Access can be controlled based on a tag that exists on the requesting resource (group, dynamic group, or compartment) or on the target of the request (resource or compartment).",
+        "syntax": {
+            "requestor": {
+                "group": "request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} = '<value>'",
+                "dynamic_group": "request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} = '<value>'",
+                "compartment": "request.principal.compartment.tag.{tagNamespace}.{tagKeyDefinition} = '<value>'"
+            },
+            "target": {
+                "resource": "target.resource.tag.{tagNamespace}.{tagKeyDefinition} = '<value>'",
+                "compartment": "target.resource.compartment.tag.{tagNamespace}.{tagKeyDefinition} = '<value>'"
+            }
+        },
+        "examples": {
+            "requestor": {
+                "group": "allow any-user to manage instances in compartment HR where request.principal.group.tag.Operations.Project = 'Prod'",
+                "dynamic_group": "allow dynamic-group InstancesA to manage instances in compartment HR where request.principal.group.tag.Operations.Project = 'Prod'",
+                "compartment": "allow dynamic-group InstancesA to manage instances in tenancy where request.principal.compartment.tag.Operations.Project = 'Prod'"
+            },
+            "target": {
+                "resource": "allow group GroupA to manage all-resources in compartment HR where target.resource.tag.Operations.Project = 'Prod'",
+                "compartment": "allow group GroupA to manage all-resources in tenancy where target.resource.compartment.tag.Operations.Project = 'Prod'"
+            }
+        },
+        "limitations": [
+            "Permissions to list a resource must be granted separately when scoping access based on the tag applied to the target resource.",
+            "Policies that require a tag on the target resource cannot grant create permissions, as the resource does not yet exist to have the appropriate tag evaluated.",
+            "Ensure appropriate controls are in place to govern who can apply tags, as applying tags to a group, user, or resource can confer access to resources.",
+            "Be aware of all potential requestors and resources that carry the tag before creating policies that specify a tag on either a target or a requestor.",
+            "Source resource tags are not supported."
+        ],
+        "supported_operators": {
+            "equals": {
+                "syntax": "request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} = 'sample'",
+                "description": "Evaluates to true if any of the groups that the requestor belongs to is tagged with the matching value 'sample' for the specified tag namespace and key."
+            },
+            "pattern_match": {
+                "syntax": "request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} = /*sample/",
+                "description": "Evaluates to true if any of the values of the specified tag ends with 'sample'. (Simple case-insensitive pattern match.)"
+            },
+            "not_equals": {
+                "syntax": "request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} != 'sample'",
+                "description": "Evaluates to true if none of the string values of the specified tag equals 'sample'. (Simple case-insensitive string comparison.)"
+            },
+            "in": {
+                "syntax": "request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} in ('sample', 'sample1')",
+                "description": "Evaluates to true if any of the values of the specified tag for any group of the current requesting principal equals 'sample' or 'sample1'."
+            },
+            "not_in": {
+                "syntax": "request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} not in ('sample', 'sample1')",
+                "description": "Evaluates to true if none of the values of the specified tag for any group of the current requesting principal equals 'sample' or 'sample1'."
+            }
+        }
+    }
+}
+[
+    {
+        "syntax": "allow service dataintegration to use virtual-network-family in compartment <compartment-name>",
+        "example": "allow service dataintegration to use virtual-network-family in compartment DataIntegrationCompartment",
+        "description": "Grants the Data Integration service permission to use virtual network resources within the specified compartment, enabling private network connections to data sources.",
+        "limitations": [
+            "Without this policy, data integration operations requiring private network access will fail."
+        ]
+    },
+    {
+        "syntax": "allow group <group-name> to manage virtual-network-family in compartment <compartment-name>",
+        "example": "allow group NetworkAdmins to manage virtual-network-family in compartment DataIntegrationCompartment",
+        "description": "Allows the specified group to manage virtual network resources within the specified compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to use virtual-network-family in compartment <compartment-name>",
+        "example": "allow group NetworkUsers to use virtual-network-family in compartment DataIntegrationCompartment",
+        "description": "Permits the specified group to use virtual network resources within the specified compartment without granting full management permissions.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to inspect instance-family in compartment <compartment-name>",
+        "example": "allow group InstanceViewers to inspect instance-family in compartment DataIntegrationCompartment",
+        "description": "Enables the specified group to view (inspect) instance resources within the specified compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow service dataintegration to inspect users in tenancy",
+        "example": "allow service dataintegration to inspect users in tenancy",
+        "description": "Grants the Data Integration service permission to list users across the entire tenancy.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to inspect compartments in compartment <target-compartment-name>",
+        "example": "allow group CompartmentViewers to inspect compartments in compartment ParentCompartment",
+        "description": "Allows the specified group to view (inspect) compartments within the target compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to inspect dis-workspaces in compartment <compartment-name>",
+        "example": "allow group WorkspaceViewers to inspect dis-workspaces in compartment DataIntegrationCompartment",
+        "description": "Permits the specified group to view Data Integration workspaces within the specified compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to read dis-workspaces in compartment <compartment-name>",
+        "example": "allow group WorkspaceReaders to read dis-workspaces in compartment DataIntegrationCompartment",
+        "description": "Enables the specified group to list and get details of Data Integration workspaces within the specified compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to use dis-workspaces in compartment <compartment-name>",
+        "example": "allow group WorkspaceUsers to use dis-workspaces in compartment DataIntegrationCompartment",
+        "description": "Allows the specified group to update Data Integration workspaces and their objects within the specified compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to manage dis-workspaces in compartment <compartment-name>",
+        "example": "allow group WorkspaceAdmins to manage dis-workspaces in compartment DataIntegrationCompartment",
+        "description": "Grants the specified group full management permissions for Data Integration workspaces and their objects within the specified compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to manage dis-workspaces in compartment <compartment-name> where target.workspace.id = '<workspace-ocid>'",
+        "example": "allow group SpecificWorkspaceAdmins to manage dis-workspaces in compartment DataIntegrationCompartment where target.workspace.id = 'ocid1.disworkspace.oc1..exampleuniqueID'",
+        "description": "Allows the specified group to manage a specific Data Integration workspace identified by its OCID within the specified compartment.",
+        "limitations": []
+    },
+    {
+        "syntax": "allow group <group-name> to manage dis-family in compartment <compartment-name> where request.permission != 'DIS_WORKSPACE_DELETE'",
+        "example": "allow group WorkspaceManagers to manage dis-family in compartment DataIntegrationCompartment where request.permission != 'DIS_WORKSPACE_DELETE'",
+        "description": "Grants the specified group management permissions for all Data Integration resources within the specified compartment, except the ability to delete workspaces.",
+        "limitations": []
+    }
+]
+
+{
+    "advanced_policy_features": {
+        "description": "OCI's policy language includes advanced features that allow for more granular access control, enhancing security and operational efficiency.",
+        "features": [
+            {
+                "name": "Conditions",
+                "description": "Conditions allow you to specify one or more criteria that must be met for access to be granted. Each condition uses predefined variables related to the request or the target resource.",
+                "syntax": "allow group <group_name> to <verb> <resource-type> in compartment <compartment_name> where <condition>",
+                "example": "allow group GroupAdmins to use users in tenancy where target.group.name != 'Administrators'",
+                "limitations": [
+                    "Condition matching is case insensitive.",
+                    "If a variable in the condition is not applicable to the incoming request, the condition evaluates to false, and the request is declined."
+                ]
+            },
+            {
+                "name": "Tag-Based Access Control",
+                "description": "Allows policies to scope access based on tags applied to resources. Access can be controlled based on tags on the requesting resource or the target resource.",
+                "syntax": "allow group <group_name> to <verb> <resource-type> in compartment <compartment_name> where target.resource.tag.<tagNamespace>.<tagKey> = '<value>'",
+                "example": "allow group GroupA to manage all-resources in compartment HR where target.resource.tag.Operations.Project = 'Prod'",
+                "limitations": [
+                    "Permissions to list a resource must be granted separately when scoping access based on the tag applied to the target resource.",
+                    "Policies that require a tag on the target resource cannot grant create permissions, as the resource does not yet exist to have the appropriate tag evaluated.",
+                    "Ensure appropriate controls are in place to govern who can apply tags, as applying tags to a group, user, or resource can confer access to resources.",
+                    "Be aware of all potential requestors and resources that carry the tag before creating policies that specify a tag on either a target or a requestor.",
+                    "Source resource tags are not supported."
+                ]
+            },
+            {
+                "name": "Permissions",
+                "description": "Permissions are the atomic units of authorization that control a user's ability to perform operations on resources. When you write a policy granting a group access to a particular verb and resource-type, you're granting access to one or more predefined permissions.",
+                "syntax": "allow group <group_name> to <verb> <resource-type> in compartment <compartment_name>",
+                "example": "allow group StorageAdmins to manage buckets in compartment Finance",
+                "limitations": [
+                    "The set of permissions granted by a verb is predefined and cannot be customized.",
+                    "Understanding the specific permissions associated with each verb is crucial to ensure appropriate access control."
+                ]
+            }
+        ]
+    }
+}
+
+{
+    "general_variables_for_all_requests": [
+        {
+            "name": "request.user.id",
+            "type": "Entity (OCID)",
+            "description": "The OCID of the requesting user."
+        },
+        {
+            "name": "request.user.name",
+            "type": "String",
+            "description": "Name of the requesting user."
+        },
+        {
+            "name": "request.user.mfaTotpVerified",
+            "type": "Boolean",
+            "description": "Indicates whether the user has been verified by multifactor authentication (MFA). To restrict access to only MFA-verified users, add the condition `where request.user.mfaTotpVerified='true'`. Note: This attribute is deprecated for IAM with identity domains; it works only with IAM without identity domains."
+        },
+        {
+            "name": "request.groups.id",
+            "type": "List of entities (OCIDs)",
+            "description": "The OCIDs of the groups the requesting user is a member of."
+        },
+        {
+            "name": "request.permission",
+            "type": "String",
+            "description": "The underlying permission being requested."
+        },
+        {
+            "name": "request.operation",
+            "type": "String",
+            "description": "The API operation name being requested (e.g., 'ListUsers')."
+        },
+        {
+            "name": "request.networkSource.name",
+            "type": "String",
+            "description": "The name of the network source group that specifies allowed IP addresses the request may originate from."
+        },
+        {
+            "name": "request.utc-timestamp",
+            "type": "String",
+            "description": "The UTC time when the request is submitted, specified in ISO 8601 format."
+        },
+        {
+            "name": "request.utc-timestamp.month-of-year",
+            "type": "String",
+            "description": "The month when the request is submitted, specified in numeric ISO 8601 format (e.g., '1' for January, '2' for February, etc.)."
+        },
+        {
+            "name": "request.utc-timestamp.day-of-month",
+            "type": "String",
+            "description": "The day of the month when the request is submitted, specified in numeric format ('1' - '31')."
+        },
+        {
+            "name": "request.utc-timestamp.day-of-week",
+            "type": "String",
+            "description": "The day of the week when the request is submitted, specified in English (e.g., 'Monday', 'Tuesday', etc.)."
+        },
+        {
+            "name": "request.utc-timestamp.time-of-day",
+            "type": "String",
+            "description": "The UTC time interval during which the request is submitted, in ISO 8601 format (e.g., '01:00:00Z' AND '02:00:00Z')."
+        },
+        {
+            "name": "request.region",
+            "type": "String",
+            "description": "The 3-letter key for the region where the request is made. For example, 'IAD' for US East (Ashburn), 'PHX' for US West (Phoenix), etc."
+        },
+        {
+            "name": "request.ad",
+            "type": "String",
+            "description": "The name of the availability domain where the request is made."
+        },
+        {
+            "name": "request.principal.compartment.tag",
+            "type": "String",
+            "description": "The tags applied to the compartment that the requesting resource belongs to."
+        },
+        {
+            "name": "request.principal.group.tag",
+            "type": "String",
+            "description": "The tags applied to the group that the requesting principal (user or resource) belongs to."
+        },
+        {
+            "name": "request.principal.tag",
+            "type": "String",
+            "description": "The tags applied to the requesting principal (user or resource)."
+        },
+        {
+            "name": "target.resource.compartment.tag",
+            "type": "String",
+            "description": "The tags applied to the target compartment of the request."
+        },
+        {
+            "name": "target.resource.tag",
+            "type": "String",
+            "description": "The tags applied to the target resource of the request."
+        }
+    ]
+}
+
+{
+    "policy_syntax": {
+        "description": "OCI policies define access by specifying subjects, verbs, resource types, and locations, with optional conditions for fine-grained control.",
+        "syntax_structure": "Allow <subject> to <verb> <resource-type> in <location> where <conditions>",
+        "components": {
+            "subject": {
+                "description": "Specifies the entity (group or dynamic group) to which the policy applies.",
+                "syntax": "group <group_name> | group id <group_ocid> | dynamic-group <dynamic-group_name> | dynamic-group id <dynamic-group_ocid> | any-group | any-user",
+                "examples": [
+                    "group A-Admins",
+                    "group id ocid1.group.oc1..exampleuniqueID",
+                    "dynamic-group DataProcessors",
+                    "any-group"
+                ],
+                "notes": [
+                    "Using 'any-user' grants access to all users, resource principals, and instance principals in your tenancy and service principal. It's recommended to use 'any-group' instead.",
+                    "Specify the resource type to prevent unnecessary principals from having access. For example: {request.principal.type='disworkspace'}."
+                ]
+            },
+            "verb": {
+                "description": "Defines the level of access granted.",
+                "syntax": "inspect | read | use | manage",
+                "examples": [
+                    "inspect",
+                    "read",
+                    "use",
+                    "manage"
+                ],
+                "notes": [
+                    "As you go from 'inspect' to 'manage', the level of access generally increases, and the permissions granted are cumulative. For example, 'use' includes 'read' plus the ability to update."
+                ]
+            },
+            "resource_type": {
+                "description": "Specifies the type of resource the policy affects.",
+                "syntax": "<resource_type> | all-resources",
+                "examples": [
+                    "vcns",
+                    "subnets",
+                    "instances",
+                    "virtual-network-family",
+                    "all-resources"
+                ],
+                "notes": [
+                    "A family resource-type covers a variety of components that are typically used together, making it easier to write a policy that gives someone access to work with various aspects of your cloud network."
+                ]
+            },
+            "location": {
+                "description": "Indicates the compartment or tenancy where the policy applies.",
+                "syntax": "tenancy | compartment <compartment_name> | compartment id <compartment_ocid>",
+                "examples": [
+                    "tenancy",
+                    "compartment Project-A",
+                    "compartment id ocid1.compartment.oc1..exampleuniqueID"
+                ],
+                "notes": [
+                    "The location is required in the statement. If you want to attach a policy to a compartment, you must be in that compartment when you create the policy.",
+                    "To specify a compartment that is not a direct child of the compartment you are attaching the policy to, specify the path to the compartment, using the colon (:) as a separator."
+                ]
+            },
+            "conditions": {
+                "description": "Optional criteria that must be met for the policy to apply.",
+                "syntax": "<condition>",
+                "examples": [
+                    "where request.user.mfaTotpVerified='true'",
+                    "where target.group.name != 'Administrators'"
+                ],
+                "notes": [
+                    "Conditions allow for more granular access control by specifying criteria that must be met for the policy to apply."
+                ]
+            }
+        },
+        "examples": [
+            {
+                "statement": "Allow group A-Admins to manage all-resources in compartment Project-A",
+                "description": "Grants the A-Admins group full management access to all resources in the Project-A compartment."
+            },
+            {
+                "statement": "Allow dynamic-group DataProcessors to use instances in compartment DataCompartment where request.user.mfaTotpVerified='true'",
+                "description": "Allows the DataProcessors dynamic group to use instances in the DataCompartment only if the user has been verified by multifactor authentication."
+            }
+        ]
+    }
+}
+
+{
+    "service_families": [
+        {
+            "family_name": "all-resources",
+            "description": "Represents all Oracle Cloud Infrastructure resource types.",
+            "individual_resource_types": []
+        },
+        {
+            "family_name": "cluster-family",
+            "description": "Related to Kubernetes Engine resources.",
+            "individual_resource_types": [
+                "clusters",
+                "node-pools"
+            ]
+        },
+        {
+            "family_name": "compute-management-family",
+            "description": "Related to Compute Management resources.",
+            "individual_resource_types": [
+                "instance-configurations",
+                "instance-pools",
+                "cluster-networks"
+            ]
+        },
+        {
+            "family_name": "data-catalog-family",
+            "description": "Related to Data Catalog resources.",
+            "individual_resource_types": [
+                "catalogs",
+                "data-assets",
+                "folders",
+                "entities",
+                "attributes",
+                "terms",
+                "categories"
+            ]
+        },
+        {
+            "family_name": "data-science-family",
+            "description": "Related to Data Science resources.",
+            "individual_resource_types": [
+                "projects",
+                "notebook-sessions",
+                "models",
+                "model-deployments",
+                "workspaces"
+            ]
+        },
+        {
+            "family_name": "database-family",
+            "description": "Related to Database Service resources.",
+            "individual_resource_types": [
+                "db-systems",
+                "autonomous-databases",
+                "db-nodes",
+                "db-homes",
+                "databases",
+                "backups",
+                "backup-destinations",
+                "data-guard-associations"
+            ]
+        },
+        {
+            "family_name": "datasafe-family-resources",
+            "description": "Related to Oracle Data Safe resources.",
+            "individual_resource_types": [
+                "data-safe-private-endpoints",
+                "on-prem-connectors",
+                "target-databases",
+                "sensitive-data-models",
+                "sensitive-types",
+                "library-masking-formats",
+                "masking-policies",
+                "audit-profiles",
+                "audit-trails",
+                "user-assessments",
+                "security-assessments"
+            ]
+        },
+        {
+            "family_name": "dns",
+            "description": "Related to DNS Service resources.",
+            "individual_resource_types": [
+                "zones",
+                "records",
+                "steering-policies",
+                "steering-policy-attachments"
+            ]
+        },
+        {
+            "family_name": "email-family",
+            "description": "Related to Email Delivery Service resources.",
+            "individual_resource_types": [
+                "senders",
+                "suppression-lists",
+                "email-domains"
+            ]
+        },
+        {
+            "family_name": "file-family",
+            "description": "Related to File Storage Service resources.",
+            "individual_resource_types": [
+                "file-systems",
+                "mount-targets",
+                "export-sets",
+                "exports"
+            ]
+        },
+        {
+            "family_name": "instance-agent-command-family",
+            "description": "Related to Instance Agent Command resources.",
+            "individual_resource_types": [
+                "instance-agent-commands"
+            ]
+        },
+        {
+            "family_name": "instance-agent-family",
+            "description": "Related to Instance Agent resources.",
+            "individual_resource_types": [
+                "instance-agent-plugins"
+            ]
+        },
+        {
+            "family_name": "instance-family",
+            "description": "Related to Compute Instance resources.",
+            "individual_resource_types": [
+                "instances",
+                "instance-images",
+                "volume-attachments",
+                "console-histories",
+                "instance-console-connection"
+            ]
+        },
+        {
+            "family_name": "object-family",
+            "description": "Related to Object Storage, Archive Storage, and Data Transfer resources.",
+            "individual_resource_types": [
+                "buckets",
+                "objects",
+                "multipart-uploads",
+                "pre-authenticated-requests",
+                "replication-policies"
+            ]
+        },
+        {
+            "family_name": "optimizer-api-family",
+            "description": "Related to Cloud Advisor resources.",
+            "individual_resource_types": [
+                "recommendations",
+                "work-requests"
+            ]
+        },
+        {
+            "family_name": "appmgmt-family",
+            "description": "Related to Stack Monitoring resources.",
+            "individual_resource_types": [
+                "monitored-instances",
+                "work-requests"
+            ]
+        },
+        {
+            "family_name": "stack-monitoring-family",
+            "description": "Related to Stack Monitoring resources.",
+            "individual_resource_types": [
+                "monitored-resources",
+                "work-requests"
+            ]
+        },
+        {
+            "family_name": "virtual-network-family",
+            "description": "Related to Networking resources.",
+            "individual_resource_types": [
+                "vcns",
+                "subnets",
+                "drgs",
+                "internet-gateways",
+                "nat-gateways",
+                "service-gateways",
+                "route-tables",
+                "security-lists",
+                "network-security-groups",
+                "public-ips",
+                "private-ips",
+                "local-peering-gateways",
+                "remote-peering-connections",
+                "ipsec-connections",
+                "virtual-circuits",
+                "vlans",
+                "vnics",
+                "vnic-attachments",
+                "capture-filters",
+                "dhcp-options",
+                "cross-connects",
+                "cross-connect-groups",
+                "ipv6s",
+                "publicippool",
+                "vtaps"
+            ]
+        },
+        {
+            "family_name": "volume-family",
+            "description": "Related to Block Volume resources.",
+            "individual_resource_types": [
+                "volumes",
+                "volume-backups",
+                "volume-groups",
+                "volume-group-backups",
+                "boot-volumes",
+                "boot-volume-backups"
+            ]
+        }
+    ]
+}
+{
+  "policies": [
+    {
+      "name": "Allow Group to Manage Resources",
+      "description": "Grant manage access to DevOps on a specific compartment",
+      "template": "Allow group {group_name} to {action} {resource} in compartment {compartment_hierarchy}",
+      "examples": [
+        {
+          "group_name": "DevOps",
+          "action": "manage",
+          "resource": "all-resources",
+          "compartment_hierarchy": "projectA:dev:Compartment_A",
+          "output": "Allow group DevOps to manage all-resources in compartment projectA:dev:Compartment_A"
+        },
+        {
+          "group_name": "Developers",
+          "action": "read",
+          "resource": "instances",
+          "compartment_hierarchy": "projectB:testing",
+          "output": "Allow group Developers to read instances in compartment projectB:testing"
+        }
+      ]
+    }
+  ],
+  "instructions": [
+    "Replace placeholders such as {group_name}, {action}, {resource}, and {compartment_hierarchy} with appropriate values.",
+    "Use ':' to separate compartment hierarchy levels, starting from the root compartment.",
+    "Use specific actions like 'inspect', 'read', 'use', or 'manage' as required by the access control needs.",
+    "Define specific resources such as 'instances', 'buckets', etc., or use 'all-resources' for broad access."
+  ]
+}
+{
+  "instructions": [
+    {
+      "rule": "Restrict Knowledge",
+      "description": "The LLM must exclusively use the syntax provided in this file and cannot generate or infer syntax not present here."
+    },
+    {
+      "rule": "Acknowledge Limitations",
+      "description": "If the LLM cannot write a policy based on this file, it should respond: 'I do not know how to write this policy based on the provided syntax.'"
+    },
+    {
+      "rule": "Maintain Syntax Integrity",
+      "description": "All placeholders and compartment hierarchy levels must follow the provided formats exactly."
+    },
+    {
+      "rule": "Follow Policy Precedence",
+      "description": "The LLM should adhere to hierarchical rules and precedence described in the policy documentation."
+    },
+    {
+      "rule": "No Policy Inference",
+      "description": "The LLM must not infer or create policy rules not explicitly mentioned in the file."
+    }
+  ]
+}
+
+{
+  "oci_policies": {
+	"overview": {
+		"category": "Overview of Policies",
+		"content": {
+		  "definition": "A policy is a document that specifies who can access which Oracle Cloud Infrastructure resources and how.",
+		  "key_elements": [
+			"Allows a group to work in certain ways with specific types of resources in a particular compartment.",
+			"Policies only allow access; they cannot deny it (implicit deny by default)."
+		  ],
+		  "steps_to_create_policies": [
+			"Define users, groups, and one or more compartments to hold the cloud resources for your organization.",
+			"Create one or more policies written in the policy language.",
+			"Place users into appropriate groups depending on the compartments and resources they need to work with.",
+			"Provide users with one-time passwords to access the Console."
+		  ]
+		}
+    },
+	"syntax": {
+      "structure": "Allow <subject> to <verb> <resource-type> in <location> where <conditions>",
+      "components": {
+        "subject": {
+          "description": "Specifies one or more groups by name or OCID, or 'any-user' to cover all users, instance principals, and resource principals in the tenancy.",
+          "examples": [
+            "group A-Admins",
+            "group id ocid1.group.oc1..exampleuniqueID",
+            "any-user"
+          ]
+        },
+        "verb": {
+          "description": "Defines the level of access. Common verbs include 'inspect', 'read', 'use', and 'manage'.",
+          "examples": [
+            "inspect",
+            "read",
+            "use",
+            "manage"
+          ]
+        },
+        "resource_type": {
+          "description": "Specifies the type of resource, such as individual resources (e.g., 'instances') or families of resources (e.g., 'instance-family').",
+          "examples": [
+            "instances",
+            "instance-family",
+            "all-resources"
+          ]
+        },
+        "location": {
+          "description": "Indicates the compartment or tenancy where the policy applies. If its a child compartment provide hirerachy as CompartmentA:Project-A where CompartmentA is under root",
+          "examples": [
+            "in compartment Project-A",
+			"in compartment CompartmentA:Project-A",
+            "in tenancy"
+          ]
+        },
+        "conditions": {
+          "description": "Optional constraints to further refine the policy, such as time-based conditions, specific request attributes, or tag-based conditions.",
+          "examples": [
+            "where request.user.mfaTotpVerified='true'",
+            "where request.region='us-ashburn-1'",
+            "where target.resource.tag.Operations.Project='Prod'"
+          ]
+        }
+      }
+    },
+    "verbs": {
+      "inspect": {
+        "description": "Ability to list resources without access to confidential information or user-specified metadata.",
+        "target_user": "Third-party auditors"
+      },
+      "read": {
+        "description": "Includes 'inspect' plus the ability to get user-specified metadata and the actual resource itself.",
+        "target_user": "Internal auditors"
+      },
+      "use": {
+        "description": "Includes 'read' plus the ability to work with existing resources, typically excluding creation or deletion.",
+        "target_user": "Day-to-day end users of resources"
+      },
+      "manage": {
+        "description": "Includes all permissions for the resource, encompassing creation, deletion, and modification.",
+        "target_user": "Administrators"
+      }
+    },
+    "resource_types": {
+      "all-resources": {
+        "description": "All Oracle Cloud Infrastructure resource types."
+      },
+      "virtual-network-family": {
+        "description": "Includes resources related to virtual cloud networks (VCNs), such as subnets, route tables, and security lists.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "instance-family": {
+        "description": "Encompasses compute instances and related resources.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "volume-family": {
+        "description": "Pertains to block storage volumes and their backups.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "database-family": {
+        "description": "Covers resources related to database services, including DB systems, DB nodes, and databases.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/Reference/dbsystempolicyreference.htm"
+      },
+      "object-family": {
+        "description": "Includes Object Storage, Archive Storage, and Data Transfer resources.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "dns": {
+        "description": "Pertains to Domain Name System (DNS) services.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "email-family": {
+        "description": "Includes resources related to the Email Delivery service.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "file-family": {
+        "description": "Covers resources for the File Storage service.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "data-catalog-family": {
+        "description": "Encompasses resources for the Data Catalog service.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "data-science-family": {
+        "description": "Includes resources for the Data Science service.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "compute-management-family": {
+        "description": "Covers resources for managing compute instances, such as instance configurations and pools.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/Reference/corepolicyreference.htm"
+      },
+      "instance-agent-family": {
+        "description": "Pertains to instance agent plugins and related resources.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/Reference/corepolicyreference.htm"
+      },
+      "instance-agent-command-family": {
+        "description": "Includes resources for instance agent commands.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/Reference/corepolicyreference.htm"
+      },
+      "cluster-family": {
+        "description": "Relates to Kubernetes clusters and associated resources.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "optimizer-api-family": {
+        "description": "Covers resources for Cloud Advisor services.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },
+      "appmgmt-family": {
+        "description": "Includes resources for Stack Monitoring services.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      },    
+
+      "stack-monitoring-family": {
+        "description": "Pertains to resources for Stack Monitoring.",
+        "details_url": "https://docs.oracle.com/en-us/iaas/Content/Identity/policyreference/policyreference_topic-ResourceTypes.htm"
+      }
+    },
+    "tag_based_policy": {
+      "description": "Policies that use tags to control access to resources.",
+      "syntax_variations": [
+        {
+          "description": "Managing Access Using Tags Applied to the Requesting Resource",
+          "syntax": "Allow any-user to <verb> <resource-type> in <location> where request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} = '<value>'"
+        },
+        {
+          "description": "Unified Policy that Matches Requesting Resource and Target Resource Tags to Control Access to Resources",
+          "syntax": "Allow any-user to <verb> <resource-type> in tenancy where request.principal.group.tag.{tagNamespace}.{tagKeyDefinition} = target.resource.tag.<tag-namespace>.<tag-key>"
+        },
+        {
+          "description": "Managing Access Using Tags Applied to the Target Resource",
+          "syntax": "Allow <subject> to <verb> <resource-type> where target.resource.tag.<tag-namespace>.<tag-key> = '<tag-value>'"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Allow access to any user that match their user group tags with target compartment tags",
+          "policy_statement": "Allow any-user to manage all-resources in Tenancy where request.principal.group.tag.Operations.Project = target.resource.tag.organization.Department",
+          "description": "This policy allows the any group with tag prefix 'Operations' and tag key 'Project' to manage all resources in compartments tagged with tag prefix 'organization' and key value 'Department'"
+        },
+		{
+          "name": "Allow access to resources with a specific tag",
+          "policy_statement": "Allow group TagAdmins to manage all-resources in Tenancy where target.resource.tag.organization.Department = 'Finance'",
+          "description": "This policy allows the group 'TagAdmins' to manage all resources tagged with 'organization.Department=Finance'."
+        },
+        {
+          "name": "Allow inspection of resources tagged with 'Environment=Dev'",
+          "policy_statement": "Allow group DevOps to inspect all-resources in Tenancy where target.resource.tag.project.Environment = 'Dev'",
+          "description": "This policy permits the group 'DevOps' to inspect resources with the 'project.Environment=Dev' tag."
+        },
+        {
+          "name": "Restrict access based on custom project tags",
+          "policy_statement": "Allow group ProjectManagers to read all-resources in Tenancy where target.resource.tag.organization.Project = 'Alpha'",
+          "description": "This policy grants the 'ProjectManagers' group read-only access to resources tagged with 'organization.Project=Alpha'."
+        },
+		{
+          "name": "The tags applied to the groups that the user belongs to are evaluated for a match.",
+          "policy_statement": "allow any-user to manage instances in compartment HR where request.principal.group.tag.Operations.Project= 'Prod'",
+          "description": "Any user who belongs to a group that has been tagged with Operations.Project='Prod' can manage instances in the HR compartment."
+        },
+		{
+          "name": "The tags applied to the dynamic groups that the instance belongs to are evaluated for a match",
+          "policy_statement": "allow dynamic-group InstancesA to manage instances in compartment HR where request.principal.group.tag.Operations.Project= 'Prod'",
+          "description": "Instances that are members of the dynamic group InstancesA and that are also members of a dynamic group tagged with Operations.Project='Prod' can manage instances in the compartment HR."
+        },
+		{
+          "name": "The tags applied to the tenancy that the requesting resource belongs to are evaluated.",
+          "policy_statement": "allow group computeAdmins to manage instances in tenancy where request.principal.compartment.tag.Operations.Project= 'Prod'",
+          "description": "Users that are part of computeAdmins group have manage access to instance where compartment is tagged with Operations.Project= 'Prod'"
+        }
+      ],
+      "notes": [
+        "Tag-based policies apply only to resources that support tagging.",
+        "Tags must exist on the target resource to be evaluated in a policy.",
+		"Users reside in the root compartment of your tenancy, so tags must be applied to the root compartment for those policy statements to work."
+      ]
+    },
+    "general_variables": {
+      "request": {
+        "description": "Provides access to attributes in the request context.",
+        "examples": [
+          "request.region",
+          "request.user.mfaTotpVerified",
+          "request.networkSource.id"
+        ]
+      },
+      "target": {
+        "description": "Provides access to attributes of the target resource.",
+        "examples": [
+          "target.resource.compartment.id",
+          "target.resource.tag['tagNamespaceName.tagKey']",
+          "target.bucket.id"
+        ]
+      },
+      "current_time": {
+        "description": "Represents the current time for time-based conditions.",
+        "examples": [
+          "current_time between '2023-01-01T00:00:00Z' and '2023-12-31T23:59:59Z'"
+        ]
+      },
+      "user": {
+        "description": "Attributes related to the user making the request.",
+        "examples": [
+          "request.user.group",
+          "request.user.ocid",
+          "request.user.mfaTotpVerified"
+        ]
+      }
+    },
+    "policy_hierarchy": {
+      "description": "Policies can be attached at different levels in the compartment hierarchy, affecting the scope of their application.",
+      "details": {
+        "tenancy_level": {
+          "description": "Policies attached at the tenancy level apply to all compartments within the tenancy.",
+          "example": "Allow group NetworkAdmins to manage virtual-network-family in tenancy"
+        },
+        "compartment_level": {
+          "description": "Policies attached at a specific compartment apply only within that compartment.",
+          "example": "Allow group A-Admins to manage all-resources in compartment Project-A"
+        }
+      }
+    },
+    "common_policies": [
+      {
+        "name": "Let network admins manage a cloud network",
+        "description": "Grants the NetworkAdmins group the ability to manage all components in Networking across the tenancy.",
+        "policy_statement": "Allow group NetworkAdmins to manage virtual-network-family in tenancy"
+      },
+      {
+        "name": "Let users launch compute instances",
+        "description": "Allows the InstanceLaunchers group to manage instances and related resources within specified compartments.",
+        "policy_statement": [
+          "Allow group InstanceLaunchers to manage instance-family in compartment ABC",
+          "Allow group InstanceLaunchers to use volume-family in compartment ABC",
+          "Allow group InstanceLaunchers to use virtual-network-family in compartment XYZ"
+        ]
+      }
+    ],
+    "vmware_solution_policies": [
+      {
+        "name": "Manage SDDCs and ESXi hosts",
+        "description": "Enables a specified group to create, manage, or delete SDDCs and ESXi hosts within the tenancy.",
+        "policy_statement": [
+          "Allow group <group_name> to manage sddcs in tenancy",
+          "Allow group <group_name> to manage instances in tenancy",
+          "Allow group <group_name> to manage vcns in tenancy"
+        ]
+      }
+    ]
+  }
+}
+
+ 
