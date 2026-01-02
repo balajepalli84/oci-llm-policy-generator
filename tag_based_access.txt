@@ -1,0 +1,96 @@
+# ==========================================
+# OCI IAM – TAG-BASED ACCESS
+# ==========================================
+
+
+# ---- Tag-based access using tags on GROUPS ----
+allow any-user to manage instances in compartment HR
+where request.principal.group.tag.Operations.Project = 'Prod'
+# Any user belonging to a group tagged Operations.Project=Prod can manage instances in HR
+
+
+# ---- Tag-based access using tags on DYNAMIC GROUPS ----
+allow dynamic-group InstancesA to manage instances in compartment HR
+where request.principal.group.tag.Operations.Project = 'Prod'
+# Instances in dynamic group InstancesA can manage instances only if the DG is tagged Prod
+
+
+# ---- Tag-based access using tags on COMPARTMENTS (requestor side) ----
+allow dynamic-group InstancesA to manage instances in tenancy
+where request.principal.compartment.tag.Operations.Project = 'Prod'
+# Instances can operate only if they run in compartments tagged Prod
+
+
+# ---- Tag-based access using tags on TARGET RESOURCES ----
+allow group GroupA to manage all-resources in compartment HR
+where target.resource.tag.Operations.Project = 'Prod'
+# GroupA can manage only resources explicitly tagged as Prod
+
+
+# ---- Tag-based access using tags on TARGET COMPARTMENTS ----
+allow group GroupA to manage all-resources in tenancy
+where target.resource.compartment.tag.Operations.Project = 'Prod'
+# GroupA can manage all resources inside compartments tagged Prod (includes subcompartments)
+
+
+# ---- REQUIRED: allow listing when using target.resource.tag ----
+allow group GroupA to inspect all-resources in compartment HR
+# Required so GroupA can list resources in Console and CLI
+
+
+# ---- IMPORTANT: create is NOT allowed with target.resource.tag ----
+# The following policy DOES NOT allow create operations:
+allow group GroupA to manage instances in compartment Operations
+where target.resource.tag.Operations.Project = 'Prod'
+# GroupA can use and delete tagged instances, but CANNOT create new ones
+
+
+# ---- Alternative: tag the COMPARTMENT instead of the RESOURCE ----
+allow group GroupA to manage all-resources in tenancy
+where target.resource.compartment.tag.Operations.Project = 'Prod'
+# Preferred pattern when create access is required
+
+
+# ---- Matching tags between requestor and target ----
+allow group GroupA to use all-resources in compartment HR
+where request.principal.group.tag.Team.Name = target.resource.tag.Team.Name
+# Access allowed only when requestor group tag matches resource tag
+
+
+# ---- Wildcard tag match ----
+allow group GroupA to use all-resources in compartment HR
+where target.resource.tag.HR.Project = '*'
+# Allows access to any resource that has HR.Project tag with any value
+
+
+# ---- IN operator (multiple tag values allowed) ----
+allow group GroupA to use all-resources in compartment HR
+where request.principal.group.tag.Team in ('HR','Finance')
+# Allows access if group tag Team is HR or Finance
+
+
+# ---- NOT IN operator ----
+allow group GroupA to use all-resources in compartment HR
+where request.principal.group.tag.Team not in ('Intern','Contractor')
+# Explicitly excludes Intern and Contractor groups
+
+
+# ---- CASE INSENSITIVITY NOTE ----
+# Tag values are case-insensitive
+# 'Prod', 'prod', 'PROD' are treated the same
+
+
+# ---- CHARACTER LIMITATION NOTE ----
+# Tag namespaces and keys used in policies must only contain:
+# a-z A-Z 0-9 _ @ - :
+
+
+# ---- COMPARTMENT HIERARCHY BEHAVIOR ----
+# If a compartment is tagged, ALL subcompartments inherit access
+allow group GroupA to use all-resources in tenancy
+where target.resource.compartment.tag.Operations.Project = 'ProjectA'
+# Applies to ProjectA and all its child compartments
+
+
+**IMPORTANT**
+when using Tags in where condition, there has to be a value and cannot be blank or wildcards. For example, request.resource.tag.governance.cost-center = 'orders' or request.resource.tag.governance.cost-center != 'orders'. It cannot be like request.resource.tag.governance.cost-center != '' or request.resource.tag.governance.cost-center = '*'

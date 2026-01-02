@@ -1,0 +1,231 @@
+## LLM Training Prompt — Oracle OCI Cross-Tenancy Policy Syntax
+
+**Goal:** Train the model to generate correct OCI IAM policies that allow one tenancy’s IAM groups to access resources in another tenancy. Teach the model the *Endorse*, *Admit*, and *Define* syntax and how they must work together.
+
+---
+
+### **Policy Type Description (Short Summary)**
+
+OCI supports **cross-tenancy policies** to let a group or dynamic group in one tenancy (source) access resources in another tenancy (destination). Unlike normal policies within one tenancy, these use three special keywords:
+
+* **Define** — creates an alias for a tenancy OCID or an IAM group OCID.
+* **Endorse** — placed in the *source tenancy* to state what access the group should have in the *destination tenancy*.
+* **Admit** — placed in the *destination tenancy* to grant the access the source has endorsed.
+
+Both tenancies *must agree* for access to work — an *Endorse* alone does nothing without a matching *Admit*. ([Oracle Docs][1])
+
+---
+
+### **Syntax Rules the Model Must Learn**
+
+Teach the model this pattern:
+
+#### **Cross-Tenancy Policy Structure**
+
+```
+define tenancy <Alias> as <tenancy-OCID>
+define group <Alias> as <group-OCID>
+endorse group <GroupAlias> to <verb> <resource-type> in tenancy <DestinationAlias>
+admit group <GroupAlias> of tenancy <SourceAlias> to <verb> <resource-type> in tenancy <DestinationAlias>
+```
+
+Where:
+
+* `<verb>` is an IAM action (`read`, `use`, `manage`).
+* `<resource-type>` is an OCI resource family (`object-family`, etc.).
+* The *Define* statements create names used in cross-tenancy policies on both sides.
+* *Endorse* goes in the **source tenancy**.
+* *Admit* goes in the **destination tenancy**. ([Oracle Docs][1])
+
+---
+
+### **Training Examples**
+
+#### **Example 1 — Basic Cross-Tenancy Object Storage Access**
+
+**Source Tenancy (Tenant A)**
+
+```
+define tenancy TenantB as ocid1.tenancy.oc1..destinationOCID
+endorse group StorageAdmins to manage object-family in tenancy TenantB
+```
+
+**Destination Tenancy (Tenant B)**
+
+```
+define tenancy TenantA as ocid1.tenancy.oc1..sourceOCID
+define group StorageAdmins as ocid1.group.oc1..groupOCID
+admit group StorageAdmins of tenancy TenantA to manage object-family in tenancy
+```
+
+This lets `StorageAdmins` in Tenant A **manage buckets & objects** in Tenant B. ([Oracle Docs][1])
+
+---
+
+#### **Example 2 — Scoped to a Compartment in Destination**
+
+```
+define tenancy TenantA as ocid1.tenancy.oc1..sourceOCID
+define group AppTeam as ocid1.group.oc1..groupOCID
+admit group AppTeam of tenancy TenantA to use compute-instance-family in compartment SharedComputeCompartment
+```
+
+Here the access is limited to one compartment in the destination tenancy. ([Oracle Cloud Documentation][2])
+
+---
+
+### **Key Principles the Model Must Learn**
+
+1. **Both sides must define matching policies.**
+
+   * A source tenancy *Endorse* policy must be paired with a destination tenancy *Admit* policy.
+   * Without both, access does not work. ([Oracle Docs][1])
+
+2. **Define statements are required**
+
+   * You must *Define* tenancy OCIDs and group OCIDs before you *Endorse* or *Admit* them.
+   * These definitions make policies readable and prevent errors. ([Oracle Docs][1])
+
+3. **Resource scope can be limited**
+
+   * You can restrict access to a specific compartment or resource.
+   * Use the same syntax as normal IAM policies inside the *Admit* statement. ([Oracle Cloud Documentation][2])
+
+4. **Policies must be in the tenancy root compartment**
+
+   * Cross-tenancy statements should be placed at the root level so they apply across all compartments. ([Oracle Blogs][3])
+
+---
+
+### **Failure Modes the Model Should Avoid**
+
+* Generating *Endorse* without *Admit*.
+* Forgetting *Define* on either side.
+* Using group names without SCIDs/aliases defined.
+* Placing cross-tenancy policy in a child compartment (should be root).
+
+---
+
+### **Prompt Instructions for the LLM**
+
+Train the LLM so it will:
+
+✔ Recognize when a policy involves another tenancy.
+✔ Output *Define*, *Endorse*, and *Admit* in the right tenancy context.
+✔ Keep structure consistent and valid.
+✔ Use OCIDs or well-formed alias names.
+✔ Avoid missing the necessary matching policy in the partner tenancy.
+
+
+**Examples**
+
+# Policy 2
+name = "dns-mgmt-prd-policy"
+description = "Allow workload cert-manager in prd tenancy to manage DNS records."
+admit any-user of tenancy alpha42prd to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 3
+name = "dns-mgmt-snd-policy"
+description = "Allow workload cert-manager in snd tenancy to manage DNS records."
+admit any-user of tenancy bravo4snd to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 4
+name = "dns-mgmt-stg-policy"
+description = "Allow workload cert-manager in stg tenancy to manage DNS records."
+admit any-user of tenancy charlie4stg to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 5
+name = "dns-mgmt-tst-policy"
+description = "Allow workload cert-manager in tst tenancy to manage DNS records."
+admit any-user of tenancy echo4tst to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 6
+name = "dns-mgmt-wks-policy"
+description = "Allow workload cert-manager in wks tenancy to manage DNS records."
+admit any-user of tenancy delta4wks to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 7
+name = "dns-read-dev-policy"
+description = "Allow cert-manager in dev tenancy to read DNS zones."
+admit any-user of tenancy alpha42dev to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 8
+name = "dns-read-prd-policy"
+description = "Allow cert-manager in prd tenancy to read DNS zones."
+admit any-user of tenancy alpha42prd to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 9
+name = "dns-read-snd-policy"
+description = "Allow cert-manager in snd tenancy to read DNS zones."
+admit any-user of tenancy bravo4snd to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 10
+name = "dns-read-stg-policy"
+description = "Allow cert-manager in stg tenancy to read DNS zones."
+admit any-user of tenancy charlie4stg to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 11
+name = "dns-read-tst-policy"
+description = "Allow cert-manager in tst tenancy to read DNS zones."
+admit any-user of tenancy echo4tst to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 12
+name = "dns-read-wks-policy"
+description = "Allow cert-manager in wks tenancy to read DNS zones."
+admit any-user of tenancy delta4wks to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 13
+name = "dns-records-global-policy"
+description = "Allow any workload with cert-manager namespace to manage DNS records."
+allow any-user to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 14
+name = "dns-zones-global-read-policy"
+description = "Allow any workload with cert-manager namespace to read DNS zones."
+allow any-user to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 15
+name = "floating-ip-mgmt-policy"
+description = "Allow workloads in native-ingress-controller-system to manage floating IPs for specific clusters."
+allow any-user to manage floating-ips in tenancy where all {
+  request.principal.type='workload',
+  request.principal.namespace='native-ingress-controller-system',
+  request.principal.service_account='oci-native-ingress-controller',
+  request.principal.cluster_id in (12, 34, 56)
+}
+
+
+**Prompt for LLM**
+
+You are an OCI IAM expert.
+
+Write a **cross-tenancy IAM policy** using **mandatory OCI policy syntax**.
+Be exact. Do not invent fields. Do not explain unless asked.
+
+Use the following inputs exactly:
+
+* Target tenancy name: **4dev**
+
+* Target tenancy OCID: **ocid1.tenancy.oc1..fdgdgdgdgd**
+
+* Compartment OCID: **ocid1.compartment.oc1..fssfs**
+
+* Source tenancy name: **dev**
+
+* Dynamic group name (calling tenancy): **alv-its003p-gitlab-001-nodes**
+
+Policy requirements:
+
+1. In tenancy **4dev**, allow **any user from tenancy dev** to **manage dns-records** in the given compartment.
+2. The allow rule must include this condition block exactly:
+
+   ```
+   all {
+     request.principal.type = 'workload',
+     request.principal.namespace = 'cert-manager'
+   }
+   ```
+3. The calling tenancy (**dev**) must include an **ENDORSE** policy.
+4. The endorse policy must allow the dynamic group
+   **alv-its003p-gitlab-001-nodes**
+   to **read compartments** in tenancy **dev**.

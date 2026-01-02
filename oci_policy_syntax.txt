@@ -1,0 +1,172 @@
+# ==========================================
+# OCI IAM POLICY SYNTAX – CLEAN REFERENCE
+# ==========================================
+
+
+# ---- Core policy structure ----
+allow <subject> to <verb> <resource-type> in <location> where <conditions>
+# Base structure for all OCI IAM policies
+
+
+# ---- Subjects (WHO) ----
+group <group-name>
+# User group by name
+
+group id <group-ocid>
+# User group by OCID
+
+dynamic-group <dynamic-group-name>
+# Dynamic group (instances, functions, workloads)
+
+dynamic-group id <dynamic-group-ocid>
+# Dynamic group by OCID
+
+any-group
+# Any user, instance principal, or resource principal in tenancy
+
+any-user
+# All users and principals (use carefully, prefer any-group)
+
+
+# ---- Verbs (ACCESS LEVEL) ----
+inspect
+# List resources and view metadata
+
+read
+# Inspect + get details
+
+use
+# Read + operate (no create/delete)
+
+manage
+# Full access (create, update, delete)
+
+
+# ---- Resource types (WHAT) ----
+<resource-type>
+# Single resource (e.g., instances, buckets, users)
+
+<resource-family>
+# Group of related resources (e.g., instance-family, virtual-network-family)
+
+all-resources
+# Every resource in scope
+
+
+# ---- Location (WHERE) ----
+tenancy
+# Entire tenancy
+
+compartment <compartment-name>
+# Specific compartment by name
+
+compartment id <compartment-ocid>
+# Specific compartment by OCID
+
+compartment <parent>:<child>
+# Nested compartment path
+
+
+# ---- Single condition syntax ----
+where <variable> = '<value>'
+# Applies condition to the policy
+
+where <variable> != '<value>'
+# Excludes a specific value
+
+
+# ---- Multiple conditions ----
+where all {
+  <condition>,
+  <condition>
+}
+# Logical AND – all conditions must match
+
+where any {
+  <condition>,
+  <condition>
+}
+# Logical OR – at least one condition must match
+
+
+# ---- Common condition variables ----
+request.user.id
+# OCID of the calling user
+
+request.user.name
+# Username of the caller
+
+request.groups.id
+# Groups the user belongs to
+
+request.permission
+# Permission being evaluated
+
+request.operation
+# API operation name
+
+request.region
+# Region code (PHX, IAD, etc.)
+
+target.compartment.id
+# OCID of target compartment
+
+target.compartment.name
+# Name of target compartment
+
+target.resource.id
+# OCID of target resource
+
+target.resource.type
+# Resource type (instance, bucket, etc.)
+
+
+# ---- Pattern matching ----
+where target.group.name = /A-Users-*/
+# Matches names starting with A-Users-
+
+where target.group.name = /*Admin*/
+# Matches names containing Admin
+
+
+# ---- Example: allow group to manage resources ----
+allow group A-Admins to manage all-resources in compartment Project-A
+# Full admin access in Project-A compartment
+
+
+# ---- Example: multiple groups ----
+allow group A-Admins, B-Admins to manage all-resources in compartment Shared
+# Grants access to multiple groups
+
+
+# ---- Example: restrict by compartment ----
+allow group InstanceAdmins to manage instance-family in compartment Project-A
+# Instance admin access limited to Project-A
+
+
+# ---- Example: exclude a compartment ----
+allow group NetworkAdmins to manage virtual-network-family in tenancy
+where target.compartment.id != '<compartment-ocid>'
+# Network admin everywhere except one compartment
+
+
+# ---- Example: restrict by resource name ----
+allow group GroupAdmins to manage groups in tenancy
+where target.group.name = /A-Users-*/
+# Can manage only groups matching naming pattern
+
+
+# ---- Example: multiple conditions ----
+allow group GroupAdmins to manage groups in tenancy
+where all {
+  target.group.name = /A-*/,
+  target.group.name != 'A-Admins'
+}
+# Can manage A-* groups except A-Admins
+
+
+# ---- IMPORTANT NOTES ----
+# Condition matching is case-insensitive
+# Object Storage bucket names are case-insensitive in conditions
+# Users and groups live in tenancy, not compartments
+# Policies can be attached at tenancy or compartment level

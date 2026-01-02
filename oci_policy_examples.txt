@@ -1,0 +1,95 @@
+# ================================
+# OCI IAM POLICY – CLEAN VERSION
+# ================================
+
+
+# ---- Data Integration core permissions ----
+allow service dataintegration to use virtual-network-family in compartment <compartment-name>
+# Required for Data Integration to use VCNs and private endpoints
+
+allow service dataintegration to inspect users in tenancy
+# Allows the service to resolve users
+
+allow service dataintegration to inspect compartments in tenancy
+# Allows the service to discover compartment hierarchy
+
+
+# ---- Group networking access (non-admin) ----
+allow group <group-name> to use virtual-network-family in compartment <compartment-name>
+# Allows use of existing VCNs and subnets
+
+allow group <group-name> to inspect instance-family in compartment <compartment-name>
+# Allows visibility into compute instances
+
+
+# ---- Workspace visibility ----
+allow group <group-name> to inspect dis-workspaces in compartment <compartment-name>
+# Allows listing Data Integration workspaces
+
+allow group <group-name> to read dis-workspaces in compartment <compartment-name>
+# Allows viewing workspace details
+
+allow group <group-name> to read dis-workspaces in tenancy
+# Allows viewing workspaces across tenancy
+
+
+# ---- Workspace update (no create/delete) ----
+allow group <group-name> to use dis-workspaces in compartment <compartment-name>
+# Allows updating tasks, flows, and configs
+
+allow group <group-name> to use dis-workspaces in compartment <compartment-name>
+where target.workspace.id = '<workspace-ocid>'
+# Restricts update access to a single workspace
+
+
+# ---- Workspace full administration ----
+allow group <group-name> to manage dis-workspaces in compartment <compartment-name>
+# Full control: create, update, delete workspaces
+
+allow group <group-name> to manage dis-workspaces in tenancy
+# Full control across tenancy
+
+
+# ---- Fine-grained / conditional access ----
+allow group <group-name> to use dis-workspaces in compartment <compartment-name>
+where request.permission = 'DIS_WORKSPACE_READ'
+# Allows only read-level permissions
+
+allow group <group-name> to manage dis-family in compartment <compartment-name>
+where request.permission != 'DIS_WORKSPACE_DELETE'
+# Allows full management except deleting workspaces
+
+
+# ---- Object Storage access (same tenancy) ----
+allow any-user to read buckets in compartment <compartment-name>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>',
+  request.operation = 'GetBucket'
+}
+# Allows Data Integration to list and access buckets
+
+allow any-user to manage objects in compartment <compartment-name>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>'
+}
+# Allows Data Integration to read/write/delete objects
+
+
+# ---- Cross-tenancy Object Storage (workspace tenancy) ----
+endorse any-user to manage objects in tenancy <object-storage-tenancy>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>'
+}
+# Grants cross-tenancy object access from workspace tenancy
+
+
+# ---- Cross-tenancy Object Storage (object storage tenancy) ----
+admit any-user of tenancy <workspace-tenancy> to manage objects in compartment <compartment-name>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>'
+}
+# Accepts cross-tenancy access into Object Storage

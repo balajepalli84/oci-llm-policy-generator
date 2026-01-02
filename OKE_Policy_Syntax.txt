@@ -1,0 +1,129 @@
+## LLM Prompt — Teach Oracle OKE Policy Syntax (Disaster Recovery)
+
+**Goal:** Train the model to generate correct Oracle Cloud Infrastructure IAM policies that allow the Full Stack Disaster Recovery (DR) service and OKE workloads to access OKE clusters, object storage, container instances, and other resources.
+
+---
+
+### **Background / Description (Short Summary)**
+
+Oracle IAM policy statements follow this general form:
+
+```
+allow <subject> to <verb> <resource-type> in <location> [where <conditions>]
+```
+
+Subjects include groups (static/dynamic), any-group, or any-user. Verbs are actions like `manage`, `read`, `use`. Resource types include families such as `compute-container-family`, `cluster-family`, `object-family` and more. Locations are compartments, tenancy, or where conditions apply. ([Oracle Docs][1])
+
+The policies below are used in **Disaster Recovery for Oracle Kubernetes Engine (OKE)** to give DR workflows permissions to manage clusters, upload backups to Object Storage, or run jobs inside clusters. ([Oracle Docs][2])
+
+---
+
+### **Training Instructions / Examples for an LLM**
+
+#### **General IAM Policy Structure**
+
+Teach the model this pattern first:
+
+```
+allow <subject> to <verb> <resource-type> in <location> [where <conditions>]
+```
+
+* `<subject>` can be:
+
+  * `group <GroupName>`
+  * `dynamic-group <DynamicGroupName>`
+  * `any-group`
+  * `any-user` (use with conditions) ([Oracle Docs][1])
+
+* `<verb>` examples:
+
+  * `manage` — full control
+  * `read` — read-only
+  * `use` — limited use ([Oracle Docs][1])
+
+* `<resource-type>` examples relevant to OKE DR:
+
+  * `compute-container-family` — OKE cluster compute
+  * `cluster-family` — OKE control plane
+  * `cluster-virtualnode-pools` — virtual node pools
+  * `object-family` — object storage buckets/objects ([Oracle Docs][2])
+
+---
+
+### **OKE DR Policy Examples**
+
+**1) OKE Cluster Management (using resource principal)**
+
+```
+allow dynamic-group <DynamicGroupName> to manage compute-container-family in compartment <Cluster_Compartment>
+```
+
+```
+allow dynamic-group <DynamicGroupName> to manage cluster-family in compartment <Cluster_Compartment>
+```
+
+```
+allow dynamic-group <DynamicGroupName> to manage cluster-virtualnode-pools in compartment <Cluster_Compartment>
+```
+
+```
+allow dynamic-group <DynamicGroupName> to manage object-family in compartment <Compartment>
+```
+
+*Use these to let DR service manage the OKE cluster and related resources.* ([Oracle Docs][2])
+
+---
+
+**2) Virtual Node Pool Policies (workload access)**
+These use *any-user + where condition* to let pods with specific service accounts access object storage:
+
+```
+allow any-user to manage objects in tenancy where all {
+  request.principal.type = 'workload',
+  request.principal.namespace = '<Namespace>',
+  request.principal.service_account = '<ServiceAccount>',
+  request.principal.cluster_id = '<Cluster_OCID>'
+}
+```
+
+* `<Namespace>` is the Kubernetes namespace.
+* `<ServiceAccount>` is the SA that will access storage.
+* These policies let the workload read/write object storage. ([Oracle Docs][2])
+
+---
+
+**3) Container Instance (runtime container) Access**
+
+```
+allow dynamic-group <ContainerRuntimeDG> to manage object-family in compartment <Compartment>
+allow dynamic-group <ContainerRuntimeDG> to manage cluster-family in compartment <Compartment>
+```
+
+*Used when DR tasks launch container instances that must access the OKE cluster and storage.* ([Oracle Docs][2])
+
+---
+
+**4) Jump Host / Bastion Policies**
+When using a jump host:
+
+```
+allow dynamic-group <JumpHostDG> to manage cluster-family in compartment <Compartment>
+allow dynamic-group <JumpHostDG> to manage cluster in compartment <Compartment>
+```
+
+For non-jump-host admin access:
+
+````
+allow group <AdminGroup> to manage compute-container-family in compartment <ClusterCompartment>
+allow group <AdminGroup> to use virtual-network-family in compartment <ClusterNetworkCompartment>
+allow group <AdminGroup> to read repos in tenancy
+``` :contentReference[oaicite:8]{index=8}
+
+---
+
+### **Best Practices to Train**
+
+1. **Replace placeholders**: Always substitute `<DynamicGroupName>`, `<Compartment>`, `<Namespace>`, `<Cluster_OCID>` with real names or IDs.
+2. **Use correct resource types**: For OKE DR use families like `cluster-family`, `compute-container-family`, `object-family`, etc.
+3. **Group conditions logically**: When using `any-user`, include conditions to limit scope (namespace, SA, cluster_id). :contentReference[oaicite:9]{index=9}
+4. **Dynamic groups are safer**: When possible use `dynamic-group` instead of `any-user` to reduce overly broad access. :contentReference[oaicite:10]{index=10}

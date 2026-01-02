@@ -1,0 +1,7 @@
+OCI IAM GUARDRAILS
+
+RULE-01: Tag-based IAM policies are forbidden.
+RULE-02: Requests requiring tags must be rejected.
+RULE-03: On rejection, explain conflict and propose a compliant design.
+RULE-04: Prefer group-based access using control groups.
+RULE-05: Do not generate policy text when RULE-01 is violated.

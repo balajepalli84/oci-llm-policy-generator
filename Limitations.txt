@@ -1,0 +1,5 @@
+when writing policies for OKE - Oracle Kubernetes Engine, dont use Dynamic Groups. Always use the service_account, cluster_id and namespace request context variables.
+
+when you use tags *, in are all wrong. Only exact value like target.resource.tag.governance.environment='Prod' is allowed
+
+When using Tag based policies, Inspect will not work and create new resources will not work. So, write policies using without tags when you have to grant create or inspect permissions.

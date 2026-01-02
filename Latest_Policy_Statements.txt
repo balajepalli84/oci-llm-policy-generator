@@ -1,0 +1,18 @@
+### Policy Example 1: Allow group to manage all objects in a compartment
+Policy:
+allow group DataAdmins to manage buckets in compartment MyProject
+Explanation:
+Grants full management access to Object Storage buckets in the specified compartment.
+
+### Policy Example 2: Tag-based policy for network read access
+Policy:
+allow group any-group to read virtual-network-family in tenancy
+where target.tag.NetworkAccess.read = 'true'
+Explanation:
+Grants read-only access to network resources when the resource is tagged with `NetworkAccess.read=true`.
+
+### Policy Example 3: Allow dynamic group for function access
+Policy:
+allow dynamic-group fn-group to use object-family in compartment Dev
+Explanation:
+Permits all functions in the `fn-group` dynamic group to read and write from Object Storage.

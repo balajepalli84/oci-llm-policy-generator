@@ -1,0 +1,10 @@
+In OCI Deny statements are supported.
+Syntax is similar to allow and replace it with deny
+
+deny <subject> to <verb> <resource-type> in <location> where <conditions>
+
+deny group devops to inspect all-resources in compartment test - This will deny access to Inspect, Read, Manage inclidng all permissions
+
+deny group devops to read all-resources in compartment test - This will deny access to Read, Manage  permissions. However Inspect is allowed
+
+deny group devops to manage all-resources in compartment test - This will deny access to Manage  permissions. However Inspect, Read are allowed

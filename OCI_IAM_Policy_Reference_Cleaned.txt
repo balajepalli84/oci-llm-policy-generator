@@ -1,0 +1,1156 @@
+OCI IAM POLICY REFERENCE 
+Generated: 2026-01-02
+
+Contents:
+  1. customer_guard_rails.txt
+  2. oci_policy_syntax.txt
+  3. general_variables.txt
+  4. family_names.txt
+  5. oci_policy_examples.txt
+  6. deny-syntax.txt
+  7. tag_based_access.txt
+  8. OKE_Policy_Syntax.txt
+  9. Cross_Tenancy_Policies.txt
+  10. Limitations.txt
+  11. best_practices.txt
+  12. Latest_Policy_Statements.txt
+
+========================================================================
+
+# customer_guard_rails.txt
+------------------------------------------------------------------------
+OCI IAM GUARDRAILS
+
+RULE-01: Tag-based IAM policies are forbidden.
+RULE-02: Requests requiring tags must be rejected.
+RULE-03: On rejection, explain conflict and propose a compliant design.
+RULE-04: Prefer group-based access using control groups.
+RULE-05: Do not generate policy text when RULE-01 is violated.
+
+========================================================================
+
+# oci_policy_syntax.txt
+------------------------------------------------------------------------
+# ==========================================
+# OCI IAM POLICY SYNTAX – CLEAN REFERENCE
+# ==========================================
+
+
+# ---- Core policy structure ----
+allow <subject> to <verb> <resource-type> in <location> where <conditions>
+# Base structure for all OCI IAM policies
+
+
+# ---- Subjects (WHO) ----
+group <group-name>
+# User group by name
+
+group id <group-ocid>
+# User group by OCID
+
+dynamic-group <dynamic-group-name>
+# Dynamic group (instances, functions, workloads)
+
+dynamic-group id <dynamic-group-ocid>
+# Dynamic group by OCID
+
+any-group
+# Any user, instance principal, or resource principal in tenancy
+
+any-user
+# All users and principals (use carefully, prefer any-group)
+
+
+# ---- Verbs (ACCESS LEVEL) ----
+inspect
+# List resources and view metadata
+
+read
+# Inspect + get details
+
+use
+# Read + operate (no create/delete)
+
+manage
+# Full access (create, update, delete)
+
+
+# ---- Resource types (WHAT) ----
+<resource-type>
+# Single resource (e.g., instances, buckets, users)
+
+<resource-family>
+# Group of related resources (e.g., instance-family, virtual-network-family)
+
+all-resources
+# Every resource in scope
+
+
+# ---- Location (WHERE) ----
+tenancy
+# Entire tenancy
+
+compartment <compartment-name>
+# Specific compartment by name
+
+compartment id <compartment-ocid>
+# Specific compartment by OCID
+
+compartment <parent>:<child>
+# Nested compartment path
+
+
+# ---- Single condition syntax ----
+where <variable> = '<value>'
+# Applies condition to the policy
+
+where <variable> != '<value>'
+# Excludes a specific value
+
+
+# ---- Multiple conditions ----
+where all {
+  <condition>,
+  <condition>
+}
+# Logical AND – all conditions must match
+
+where any {
+  <condition>,
+  <condition>
+}
+# Logical OR – at least one condition must match
+
+
+# ---- Common condition variables ----
+request.user.id
+# OCID of the calling user
+
+request.user.name
+# Username of the caller
+
+request.groups.id
+# Groups the user belongs to
+
+request.permission
+# Permission being evaluated
+
+request.operation
+# API operation name
+
+request.region
+# Region code (PHX, IAD, etc.)
+
+target.compartment.id
+# OCID of target compartment
+
+target.compartment.name
+# Name of target compartment
+
+target.resource.id
+# OCID of target resource
+
+target.resource.type
+# Resource type (instance, bucket, etc.)
+
+
+# ---- Pattern matching ----
+where target.group.name = /A-Users-*/
+# Matches names starting with A-Users-
+
+where target.group.name = /*Admin*/
+# Matches names containing Admin
+
+
+# ---- Example: allow group to manage resources ----
+allow group A-Admins to manage all-resources in compartment Project-A
+# Full admin access in Project-A compartment
+
+
+# ---- Example: multiple groups ----
+allow group A-Admins, B-Admins to manage all-resources in compartment Shared
+# Grants access to multiple groups
+
+
+# ---- Example: restrict by compartment ----
+allow group InstanceAdmins to manage instance-family in compartment Project-A
+# Instance admin access limited to Project-A
+
+
+# ---- Example: exclude a compartment ----
+allow group NetworkAdmins to manage virtual-network-family in tenancy
+where target.compartment.id != '<compartment-ocid>'
+# Network admin everywhere except one compartment
+
+
+# ---- Example: restrict by resource name ----
+allow group GroupAdmins to manage groups in tenancy
+where target.group.name = /A-Users-*/
+# Can manage only groups matching naming pattern
+
+
+# ---- Example: multiple conditions ----
+allow group GroupAdmins to manage groups in tenancy
+where all {
+  target.group.name = /A-*/,
+  target.group.name != 'A-Admins'
+}
+# Can manage A-* groups except A-Admins
+
+
+# ---- IMPORTANT NOTES ----
+# Condition matching is case-insensitive
+# Object Storage bucket names are case-insensitive in conditions
+# Users and groups live in tenancy, not compartments
+# Policies can be attached at tenancy or compartment level
+
+========================================================================
+
+# general_variables.txt
+------------------------------------------------------------------------
+1. Request Variables (who, where, when, how)
+
+Object Storage service has special variables
+
+target.bucket.name - bucket name
+
+target.bucket.tag.<TagNamespace>.<TagKeyDefinition> - bucket tag
+
+request.user.id — OCID of the calling user
+
+request.user.name — Name of the calling user
+
+request.groups.id — List of group OCIDs the user belongs to
+
+request.groups.name — List of group names the user belongs to
+
+request.principal.id - requesting principal OCID value
+
+request.principal.type - Resource type (example: user,instance, bucket)
+
+request.permission — Permission being evaluated
+
+request.operation — API operation name (example: CreateInstance)
+
+request.region — 3-letter region key (example: IAD, PHX)
+
+request.networkSource.name — Network source name (IP allow list)
+
+Time-based (UTC):
+
+request.utc-timestamp — Full timestamp (ISO 8601)
+
+request.utc-timestamp.month-of-year — 1–12
+
+request.utc-timestamp.day-of-month — 1–31
+
+request.utc-timestamp.day-of-week — Monday–Sunday
+
+request.utc-timestamp.time-of-day — Time range (ISO 8601 interval)
+
+2. Target Variables (what resource is being accessed)
+
+target.compartment.id — OCID of the target compartment
+
+target.compartment.name — Name of the target compartment
+
+target.resource.id — OCID of the target resource
+
+target.resource.type — Resource type (example: instance, bucket)
+
+3. Target Tag Variables (resource metadata)
+
+Defined tags:
+
+target.resource.tag.<namespace>.<key> — Value of a defined tag
+
+Freeform tags:
+
+target.resource.freeformTag.<key> — Value of a freeform tag
+
+4. Request Tag Variables (tags passed in create/update calls)
+
+Used when enforcing rules on new or updated resources.
+
+Defined tags:
+
+request.resource.tag.<namespace>.<key>
+
+Freeform tags:
+
+request.resource.freeformTag.<key>
+
+5. Example Policy Condition Snippets
+allow group Admins to manage all-resources
+where request.region = 'IAD'
+
+allow group Devs to manage instance-family
+where target.resource.tag.CostCenter = 'ENG'
+
+allow group CICD to manage buckets
+where request.utc-timestamp.day-of-week = 'Saturday'
+
+========================================================================
+
+# family_names.txt
+------------------------------------------------------------------------
+# OCI IAM Policy Language – Resource Families and Context
+
+**LLM Training Prompt (Single Page)**
+
+This document defines **Oracle Cloud Infrastructure (OCI) IAM resource families**, their **purpose**, and the **resource-type vocabulary** associated with each family.
+Resource families are **aggregate policy targets**. Granting access to a family grants access to all included resource-types.
+
+Policies follow this grammar:
+
+```
+allow <subject> to <verb> <resource-type or family> in <location> where <conditions>
+```
+
+---
+
+## Core Infrastructure Families
+
+### virtual-network-family
+
+Controls **all networking constructs** inside OCI Virtual Cloud Networks (VCNs).
+Use this family to manage connectivity, routing, security boundaries, and traffic flow.
+
+Includes:
+vcns, subnets, route-tables, security-lists, network-security-groups, internet-gateways, nat-gateways, service-gateways, local-peering-gateways, remote-peering-connections, drg-object, drg-attachments, drg-route-tables, drg-route-distributions, ipsec-connections, cross-connects, cross-connect-groups, virtual-circuits, vlans, vnics, vnic-attachments, private-ips, public-ips, publicippool, byoiprange, capture-filters, vtaps, ipv6s, dhcp-options, ipam
+
+---
+
+### instance-family
+
+Controls **Compute instances and their direct lifecycle operations**.
+
+Includes:
+instances, instance-console-connection, console-histories, instance-images, app-catalog-listing
+
+---
+
+### compute-management-family
+
+Controls **higher-level compute orchestration and scaling**.
+
+Includes:
+instance-configurations, instance-pools, cluster-networks, auto-scaling-configurations, dedicated-vm-hosts, compute-clusters, compute-capacity-reservations, compute-capacity-reports, work-requests
+
+---
+
+### instance-agent-family
+
+Controls **software agents running inside compute instances**.
+
+Includes:
+instance-agent-plugins
+
+---
+
+### instance-agent-command-family
+
+Controls **remote command execution via the OCI instance agent**.
+
+Includes:
+instance-agent-commands
+
+---
+
+### volume-family
+
+Controls **block storage and boot storage**.
+
+Includes:
+volumes, volume-attachments, volume-backups, boot-volume-backups, backup-policies, backup-policy-assignments, volume-groups, volume-group-backups
+
+---
+
+## Container and Platform Services
+
+### cluster-family
+
+Controls **Oracle Kubernetes Engine (OKE)** resources.
+
+Includes:
+clusters, cluster-node-pools, cluster-work-requests
+
+---
+
+### object-family
+
+Controls **Object Storage and Archive Storage**.
+
+Includes:
+objectstorage-namespaces, buckets, objects
+
+Key variables:
+target.bucket.name
+target.object.name
+
+---
+
+### file-family
+
+Controls **File Storage Service** (shared NFS storage).
+
+Includes:
+file-systems, mount-targets, export-sets, filesystem-snapshot-policies, outbound-connectors, replications, replication-targets, fss-work-requests
+
+---
+
+### dns
+
+Controls **DNS zones, records, and traffic steering**.
+
+Includes:
+dns-zones, dns-records, dns-steering-policies, dns-steering-policy-attachments, dns-tsig-keys, dns-views, dns-resolvers
+
+---
+
+### email-family
+
+Controls **OCI Email Delivery Service**.
+
+Includes:
+email-domains, approved-senders, suppressions, email-work-requests
+
+---
+
+## Monitoring and Optimization
+
+### appmgmt-family
+
+Controls **Application Management Monitoring**.
+
+Includes:
+appmgmt-monitored-instance, appmgmt-work-request
+
+---
+
+### stack-monitoring-family
+
+Controls **full-stack monitoring and discovery**.
+
+Includes:
+stack-monitoring-resource, stack-monitoring-resource-type, stack-monitoring-task, stack-monitoring-discovery-job, stack-monitoring-work-request, stack-monitoring-metric-extension, stack-monitoring-config, stack-monitoring-baselineable-metric, stack-monitoring-process-set, stack-monitoring-monitoring-template, stack-monitoring-defined-monitoring-template
+
+---
+
+### optimizer-api-family
+
+Controls **Cloud Advisor / Optimizer recommendations**.
+
+Includes:
+optimizer-category, optimizer-enrollment, optimizer-history, optimizer-profile, optimizer-profile-level, optimizer-recommendation, optimizer-recommendation-strategy, optimizer-resource-action, optimizer-resource-metadata, optimizer-workrequest
+
+---
+
+## Data and AI Services
+
+### data-catalog-family
+
+Controls **OCI Data Catalog metadata and governance objects**.
+
+Includes:
+data-catalogs, data-catalog-private-endpoints, data-catalog-data-assets, data-catalog-connections, data-catalog-entities, data-catalog-entity-tags, data-catalog-glossaries, data-catalog-glossary-terms, data-catalog-jobs, data-catalog-job-runs, data-catalog-work-requests
+
+---
+
+### data-science-family
+
+Controls **OCI Data Science workloads and assets**.
+
+Includes:
+data-science-projects, data-science-notebook-sessions, data-science-models, data-science-modelversionsets, data-science-model-deployments, data-science-model-groups, data-science-model-group-version-histories, data-science-jobs, data-science-job-runs, data-science-pipelines, data-science-pipeline-runs, data-science-schedules, data-science-private-endpoint, data-science-work-requests
+
+---
+
+## Database Services
+
+### database-family
+
+Controls **traditional Oracle Database infrastructure**.
+
+Includes:
+db-systems, db-nodes, db-homes, databases, pluggable-databases, db-backups
+
+Used by:
+Base Database Service, Exadata Cloud Infrastructure, Exadata Cloud@Customer, Exadata Exascale
+
+---
+
+### autonomous-database-family
+
+Controls **Autonomous Database (serverless)** workloads.
+
+Includes:
+autonomous-databases, autonomous-backups
+
+---
+
+### external-database-family
+
+Controls **externally managed databases registered in OCI**.
+
+Includes:
+external-container-databases, external-pluggable-databases, external-non-container-databases, external-database-connectors
+
+---
+
+### db-multi-cloud-family
+
+Controls **multi-cloud database connectivity** (Exadata-related).
+
+Includes:
+cloud-exadata-infrastructures, cloud-vmclusters and related scheduling objects
+
+---
+
+## Key Training Notes (Critical)
+
+* Family names are **policy shortcuts**, not API resources.
+* Families expand to individual resource-types at evaluation time.
+* Most services support **only general variables** unless explicitly listed.
+* Verb semantics (`inspect`, `read`, `use`, `manage`) are **consistent across families**.
+
+---
+
+If you want, next we can:
+
+* Convert this into **JSON training data**
+* Add **verb-to-permission mappings**
+* Add **negative examples** (what a family does NOT cover)
+* Normalize this for **RAG ingestion**
+
+Tell me the next step and we will move forward.
+
+========================================================================
+
+# oci_policy_examples.txt
+------------------------------------------------------------------------
+# ================================
+# OCI IAM POLICY – CLEAN VERSION
+# ================================
+
+
+# ---- Data Integration core permissions ----
+allow service dataintegration to use virtual-network-family in compartment <compartment-name>
+# Required for Data Integration to use VCNs and private endpoints
+
+allow service dataintegration to inspect users in tenancy
+# Allows the service to resolve users
+
+allow service dataintegration to inspect compartments in tenancy
+# Allows the service to discover compartment hierarchy
+
+
+# ---- Group networking access (non-admin) ----
+allow group <group-name> to use virtual-network-family in compartment <compartment-name>
+# Allows use of existing VCNs and subnets
+
+allow group <group-name> to inspect instance-family in compartment <compartment-name>
+# Allows visibility into compute instances
+
+
+# ---- Workspace visibility ----
+allow group <group-name> to inspect dis-workspaces in compartment <compartment-name>
+# Allows listing Data Integration workspaces
+
+allow group <group-name> to read dis-workspaces in compartment <compartment-name>
+# Allows viewing workspace details
+
+allow group <group-name> to read dis-workspaces in tenancy
+# Allows viewing workspaces across tenancy
+
+
+# ---- Workspace update (no create/delete) ----
+allow group <group-name> to use dis-workspaces in compartment <compartment-name>
+# Allows updating tasks, flows, and configs
+
+allow group <group-name> to use dis-workspaces in compartment <compartment-name>
+where target.workspace.id = '<workspace-ocid>'
+# Restricts update access to a single workspace
+
+
+# ---- Workspace full administration ----
+allow group <group-name> to manage dis-workspaces in compartment <compartment-name>
+# Full control: create, update, delete workspaces
+
+allow group <group-name> to manage dis-workspaces in tenancy
+# Full control across tenancy
+
+
+# ---- Fine-grained / conditional access ----
+allow group <group-name> to use dis-workspaces in compartment <compartment-name>
+where request.permission = 'DIS_WORKSPACE_READ'
+# Allows only read-level permissions
+
+allow group <group-name> to manage dis-family in compartment <compartment-name>
+where request.permission != 'DIS_WORKSPACE_DELETE'
+# Allows full management except deleting workspaces
+
+
+# ---- Object Storage access (same tenancy) ----
+allow any-user to read buckets in compartment <compartment-name>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>',
+  request.operation = 'GetBucket'
+}
+# Allows Data Integration to list and access buckets
+
+allow any-user to manage objects in compartment <compartment-name>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>'
+}
+# Allows Data Integration to read/write/delete objects
+
+
+# ---- Cross-tenancy Object Storage (workspace tenancy) ----
+endorse any-user to manage objects in tenancy <object-storage-tenancy>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>'
+}
+# Grants cross-tenancy object access from workspace tenancy
+
+
+# ---- Cross-tenancy Object Storage (object storage tenancy) ----
+admit any-user of tenancy <workspace-tenancy> to manage objects in compartment <compartment-name>
+where all {
+  request.principal.type = 'disworkspace',
+  request.principal.id = '<workspace-ocid>'
+}
+# Accepts cross-tenancy access into Object Storage
+
+========================================================================
+
+# deny-syntax.txt
+------------------------------------------------------------------------
+In OCI Deny statements are supported.
+Syntax is similar to allow and replace it with deny
+
+deny <subject> to <verb> <resource-type> in <location> where <conditions>
+
+deny group devops to inspect all-resources in compartment test - This will deny access to Inspect, Read, Manage inclidng all permissions
+
+deny group devops to read all-resources in compartment test - This will deny access to Read, Manage  permissions. However Inspect is allowed
+
+deny group devops to manage all-resources in compartment test - This will deny access to Manage  permissions. However Inspect, Read are allowed
+
+========================================================================
+
+# tag_based_access.txt
+------------------------------------------------------------------------
+# ==========================================
+# OCI IAM – TAG-BASED ACCESS
+# ==========================================
+
+
+# ---- Tag-based access using tags on GROUPS ----
+allow any-user to manage instances in compartment HR
+where request.principal.group.tag.Operations.Project = 'Prod'
+# Any user belonging to a group tagged Operations.Project=Prod can manage instances in HR
+
+
+# ---- Tag-based access using tags on DYNAMIC GROUPS ----
+allow dynamic-group InstancesA to manage instances in compartment HR
+where request.principal.group.tag.Operations.Project = 'Prod'
+# Instances in dynamic group InstancesA can manage instances only if the DG is tagged Prod
+
+
+# ---- Tag-based access using tags on COMPARTMENTS (requestor side) ----
+allow dynamic-group InstancesA to manage instances in tenancy
+where request.principal.compartment.tag.Operations.Project = 'Prod'
+# Instances can operate only if they run in compartments tagged Prod
+
+
+# ---- Tag-based access using tags on TARGET RESOURCES ----
+allow group GroupA to manage all-resources in compartment HR
+where target.resource.tag.Operations.Project = 'Prod'
+# GroupA can manage only resources explicitly tagged as Prod
+
+
+# ---- Tag-based access using tags on TARGET COMPARTMENTS ----
+allow group GroupA to manage all-resources in tenancy
+where target.resource.compartment.tag.Operations.Project = 'Prod'
+# GroupA can manage all resources inside compartments tagged Prod (includes subcompartments)
+
+
+# ---- REQUIRED: allow listing when using target.resource.tag ----
+allow group GroupA to inspect all-resources in compartment HR
+# Required so GroupA can list resources in Console and CLI
+
+
+# ---- IMPORTANT: create is NOT allowed with target.resource.tag ----
+# The following policy DOES NOT allow create operations:
+allow group GroupA to manage instances in compartment Operations
+where target.resource.tag.Operations.Project = 'Prod'
+# GroupA can use and delete tagged instances, but CANNOT create new ones
+
+
+# ---- Alternative: tag the COMPARTMENT instead of the RESOURCE ----
+allow group GroupA to manage all-resources in tenancy
+where target.resource.compartment.tag.Operations.Project = 'Prod'
+# Preferred pattern when create access is required
+
+
+# ---- Matching tags between requestor and target ----
+allow group GroupA to use all-resources in compartment HR
+where request.principal.group.tag.Team.Name = target.resource.tag.Team.Name
+# Access allowed only when requestor group tag matches resource tag
+
+
+# ---- Wildcard tag match ----
+allow group GroupA to use all-resources in compartment HR
+where target.resource.tag.HR.Project = '*'
+# Allows access to any resource that has HR.Project tag with any value
+
+
+# ---- IN operator (multiple tag values allowed) ----
+allow group GroupA to use all-resources in compartment HR
+where request.principal.group.tag.Team in ('HR','Finance')
+# Allows access if group tag Team is HR or Finance
+
+
+# ---- NOT IN operator ----
+allow group GroupA to use all-resources in compartment HR
+where request.principal.group.tag.Team not in ('Intern','Contractor')
+# Explicitly excludes Intern and Contractor groups
+
+
+# ---- CASE INSENSITIVITY NOTE ----
+# Tag values are case-insensitive
+# 'Prod', 'prod', 'PROD' are treated the same
+
+
+# ---- CHARACTER LIMITATION NOTE ----
+# Tag namespaces and keys used in policies must only contain:
+# a-z A-Z 0-9 _ @ - :
+
+
+# ---- COMPARTMENT HIERARCHY BEHAVIOR ----
+# If a compartment is tagged, ALL subcompartments inherit access
+allow group GroupA to use all-resources in tenancy
+where target.resource.compartment.tag.Operations.Project = 'ProjectA'
+# Applies to ProjectA and all its child compartments
+
+
+**IMPORTANT**
+when using Tags in where condition, there has to be a value and cannot be blank or wildcards. For example, request.resource.tag.governance.cost-center = 'orders' or request.resource.tag.governance.cost-center != 'orders'. It cannot be like request.resource.tag.governance.cost-center != '' or request.resource.tag.governance.cost-center = '*'
+
+========================================================================
+
+# OKE_Policy_Syntax.txt
+------------------------------------------------------------------------
+## 📘 LLM Prompt — Teach Oracle OKE Policy Syntax (Disaster Recovery)
+
+**Goal:** Train the model to generate correct Oracle Cloud Infrastructure IAM policies that allow the Full Stack Disaster Recovery (DR) service and OKE workloads to access OKE clusters, object storage, container instances, and other resources.
+
+---
+
+### **Background / Description (Short Summary)**
+
+Oracle IAM policy statements follow this general form:
+
+```
+allow <subject> to <verb> <resource-type> in <location> [where <conditions>]
+```
+
+Subjects include groups (static/dynamic), any-group, or any-user. Verbs are actions like `manage`, `read`, `use`. Resource types include families such as `compute-container-family`, `cluster-family`, `object-family` and more. Locations are compartments, tenancy, or where conditions apply. ([Oracle Docs][1])
+
+The policies below are used in **Disaster Recovery for Oracle Kubernetes Engine (OKE)** to give DR workflows permissions to manage clusters, upload backups to Object Storage, or run jobs inside clusters. ([Oracle Docs][2])
+
+---
+
+### **Training Instructions / Examples for an LLM**
+
+#### **General IAM Policy Structure**
+
+Teach the model this pattern first:
+
+```
+allow <subject> to <verb> <resource-type> in <location> [where <conditions>]
+```
+
+* `<subject>` can be:
+
+  * `group <GroupName>`
+  * `dynamic-group <DynamicGroupName>`
+  * `any-group`
+  * `any-user` (use with conditions) ([Oracle Docs][1])
+
+* `<verb>` examples:
+
+  * `manage` — full control
+  * `read` — read-only
+  * `use` — limited use ([Oracle Docs][1])
+
+* `<resource-type>` examples relevant to OKE DR:
+
+  * `compute-container-family` — OKE cluster compute
+  * `cluster-family` — OKE control plane
+  * `cluster-virtualnode-pools` — virtual node pools
+  * `object-family` — object storage buckets/objects ([Oracle Docs][2])
+
+---
+
+### **OKE DR Policy Examples**
+
+**1) OKE Cluster Management (using resource principal)**
+
+```
+allow dynamic-group <DynamicGroupName> to manage compute-container-family in compartment <Cluster_Compartment>
+```
+
+```
+allow dynamic-group <DynamicGroupName> to manage cluster-family in compartment <Cluster_Compartment>
+```
+
+```
+allow dynamic-group <DynamicGroupName> to manage cluster-virtualnode-pools in compartment <Cluster_Compartment>
+```
+
+```
+allow dynamic-group <DynamicGroupName> to manage object-family in compartment <Compartment>
+```
+
+*Use these to let DR service manage the OKE cluster and related resources.* ([Oracle Docs][2])
+
+---
+
+**2) Virtual Node Pool Policies (workload access)**
+These use *any-user + where condition* to let pods with specific service accounts access object storage:
+
+```
+allow any-user to manage objects in tenancy where all {
+  request.principal.type = 'workload',
+  request.principal.namespace = '<Namespace>',
+  request.principal.service_account = '<ServiceAccount>',
+  request.principal.cluster_id = '<Cluster_OCID>'
+}
+```
+
+* `<Namespace>` is the Kubernetes namespace.
+* `<ServiceAccount>` is the SA that will access storage.
+* These policies let the workload read/write object storage. ([Oracle Docs][2])
+
+---
+
+**3) Container Instance (runtime container) Access**
+
+```
+allow dynamic-group <ContainerRuntimeDG> to manage object-family in compartment <Compartment>
+allow dynamic-group <ContainerRuntimeDG> to manage cluster-family in compartment <Compartment>
+```
+
+*Used when DR tasks launch container instances that must access the OKE cluster and storage.* ([Oracle Docs][2])
+
+---
+
+**4) Jump Host / Bastion Policies**
+When using a jump host:
+
+```
+allow dynamic-group <JumpHostDG> to manage cluster-family in compartment <Compartment>
+allow dynamic-group <JumpHostDG> to manage cluster in compartment <Compartment>
+```
+
+For non-jump-host admin access:
+
+````
+allow group <AdminGroup> to manage compute-container-family in compartment <ClusterCompartment>
+allow group <AdminGroup> to use virtual-network-family in compartment <ClusterNetworkCompartment>
+allow group <AdminGroup> to read repos in tenancy
+``` :contentReference[oaicite:8]{index=8}
+
+---
+
+### **Best Practices to Train**
+
+1. **Replace placeholders**: Always substitute `<DynamicGroupName>`, `<Compartment>`, `<Namespace>`, `<Cluster_OCID>` with real names or IDs.
+2. **Use correct resource types**: For OKE DR use families like `cluster-family`, `compute-container-family`, `object-family`, etc.
+3. **Group conditions logically**: When using `any-user`, include conditions to limit scope (namespace, SA, cluster_id). :contentReference[oaicite:9]{index=9}
+4. **Dynamic groups are safer**: When possible use `dynamic-group` instead of `any-user` to reduce overly broad access. :contentReference[oaicite:10]{index=10}
+
+========================================================================
+
+# Cross_Tenancy_Policies.txt
+------------------------------------------------------------------------
+## 📘 LLM Training Prompt — Oracle OCI Cross-Tenancy Policy Syntax
+
+**Goal:** Train the model to generate correct OCI IAM policies that allow one tenancy’s IAM groups to access resources in another tenancy. Teach the model the *Endorse*, *Admit*, and *Define* syntax and how they must work together.
+
+---
+
+### **Policy Type Description (Short Summary)**
+
+OCI supports **cross-tenancy policies** to let a group or dynamic group in one tenancy (source) access resources in another tenancy (destination). Unlike normal policies within one tenancy, these use three special keywords:
+
+* **Define** — creates an alias for a tenancy OCID or an IAM group OCID.
+* **Endorse** — placed in the *source tenancy* to state what access the group should have in the *destination tenancy*.
+* **Admit** — placed in the *destination tenancy* to grant the access the source has endorsed.
+
+Both tenancies *must agree* for access to work — an *Endorse* alone does nothing without a matching *Admit*. ([Oracle Docs][1])
+
+---
+
+### **Syntax Rules the Model Must Learn**
+
+Teach the model this pattern:
+
+#### **Cross-Tenancy Policy Structure**
+
+```
+define tenancy <Alias> as <tenancy-OCID>
+define group <Alias> as <group-OCID>
+endorse group <GroupAlias> to <verb> <resource-type> in tenancy <DestinationAlias>
+admit group <GroupAlias> of tenancy <SourceAlias> to <verb> <resource-type> in tenancy <DestinationAlias>
+```
+
+Where:
+
+* `<verb>` is an IAM action (`read`, `use`, `manage`).
+* `<resource-type>` is an OCI resource family (`object-family`, etc.).
+* The *Define* statements create names used in cross-tenancy policies on both sides.
+* *Endorse* goes in the **source tenancy**.
+* *Admit* goes in the **destination tenancy**. ([Oracle Docs][1])
+
+---
+
+### **Training Examples**
+
+#### **Example 1 — Basic Cross-Tenancy Object Storage Access**
+
+**Source Tenancy (Tenant A)**
+
+```
+define tenancy TenantB as ocid1.tenancy.oc1..destinationOCID
+endorse group StorageAdmins to manage object-family in tenancy TenantB
+```
+
+**Destination Tenancy (Tenant B)**
+
+```
+define tenancy TenantA as ocid1.tenancy.oc1..sourceOCID
+define group StorageAdmins as ocid1.group.oc1..groupOCID
+admit group StorageAdmins of tenancy TenantA to manage object-family in tenancy
+```
+
+This lets `StorageAdmins` in Tenant A **manage buckets & objects** in Tenant B. ([Oracle Docs][1])
+
+---
+
+#### **Example 2 — Scoped to a Compartment in Destination**
+
+```
+define tenancy TenantA as ocid1.tenancy.oc1..sourceOCID
+define group AppTeam as ocid1.group.oc1..groupOCID
+admit group AppTeam of tenancy TenantA to use compute-instance-family in compartment SharedComputeCompartment
+```
+
+Here the access is limited to one compartment in the destination tenancy. ([Oracle Cloud Documentation][2])
+
+---
+
+### **Key Principles the Model Must Learn**
+
+1. **Both sides must define matching policies.**
+
+   * A source tenancy *Endorse* policy must be paired with a destination tenancy *Admit* policy.
+   * Without both, access does not work. ([Oracle Docs][1])
+
+2. **Define statements are required**
+
+   * You must *Define* tenancy OCIDs and group OCIDs before you *Endorse* or *Admit* them.
+   * These definitions make policies readable and prevent errors. ([Oracle Docs][1])
+
+3. **Resource scope can be limited**
+
+   * You can restrict access to a specific compartment or resource.
+   * Use the same syntax as normal IAM policies inside the *Admit* statement. ([Oracle Cloud Documentation][2])
+
+4. **Policies must be in the tenancy root compartment**
+
+   * Cross-tenancy statements should be placed at the root level so they apply across all compartments. ([Oracle Blogs][3])
+
+---
+
+### **Failure Modes the Model Should Avoid**
+
+* Generating *Endorse* without *Admit*.
+* Forgetting *Define* on either side.
+* Using group names without SCIDs/aliases defined.
+* Placing cross-tenancy policy in a child compartment (should be root).
+
+---
+
+### **Prompt Instructions for the LLM**
+
+Train the LLM so it will:
+
+✔ Recognize when a policy involves another tenancy.
+✔ Output *Define*, *Endorse*, and *Admit* in the right tenancy context.
+✔ Keep structure consistent and valid.
+✔ Use OCIDs or well-formed alias names.
+✔ Avoid missing the necessary matching policy in the partner tenancy.
+
+
+**Examples**
+
+# Policy 2
+name = "dns-mgmt-prd-policy"
+description = "Allow workload cert-manager in prd tenancy to manage DNS records."
+admit any-user of tenancy alpha42prd to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 3
+name = "dns-mgmt-snd-policy"
+description = "Allow workload cert-manager in snd tenancy to manage DNS records."
+admit any-user of tenancy bravo4snd to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 4
+name = "dns-mgmt-stg-policy"
+description = "Allow workload cert-manager in stg tenancy to manage DNS records."
+admit any-user of tenancy charlie4stg to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 5
+name = "dns-mgmt-tst-policy"
+description = "Allow workload cert-manager in tst tenancy to manage DNS records."
+admit any-user of tenancy echo4tst to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 6
+name = "dns-mgmt-wks-policy"
+description = "Allow workload cert-manager in wks tenancy to manage DNS records."
+admit any-user of tenancy delta4wks to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 7
+name = "dns-read-dev-policy"
+description = "Allow cert-manager in dev tenancy to read DNS zones."
+admit any-user of tenancy alpha42dev to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 8
+name = "dns-read-prd-policy"
+description = "Allow cert-manager in prd tenancy to read DNS zones."
+admit any-user of tenancy alpha42prd to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 9
+name = "dns-read-snd-policy"
+description = "Allow cert-manager in snd tenancy to read DNS zones."
+admit any-user of tenancy bravo4snd to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 10
+name = "dns-read-stg-policy"
+description = "Allow cert-manager in stg tenancy to read DNS zones."
+admit any-user of tenancy charlie4stg to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 11
+name = "dns-read-tst-policy"
+description = "Allow cert-manager in tst tenancy to read DNS zones."
+admit any-user of tenancy echo4tst to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 12
+name = "dns-read-wks-policy"
+description = "Allow cert-manager in wks tenancy to read DNS zones."
+admit any-user of tenancy delta4wks to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 13
+name = "dns-records-global-policy"
+description = "Allow any workload with cert-manager namespace to manage DNS records."
+allow any-user to manage dns-records in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 14
+name = "dns-zones-global-read-policy"
+description = "Allow any workload with cert-manager namespace to read DNS zones."
+allow any-user to read dns-zones in compartment id ocid1.compartment.oc1..aaa111bbb222ccc333ddd444eee555fff6 where all { request.principal.type='workload', request.principal.namespace='cert-manager' }
+
+# Policy 15
+name = "floating-ip-mgmt-policy"
+description = "Allow workloads in native-ingress-controller-system to manage floating IPs for specific clusters."
+allow any-user to manage floating-ips in tenancy where all {
+  request.principal.type='workload',
+  request.principal.namespace='native-ingress-controller-system',
+  request.principal.service_account='oci-native-ingress-controller',
+  request.principal.cluster_id in (12, 34, 56)
+}
+
+
+**Prompt for LLM**
+
+You are an OCI IAM expert.
+
+Write a **cross-tenancy IAM policy** using **mandatory OCI policy syntax**.
+Be exact. Do not invent fields. Do not explain unless asked.
+
+Use the following inputs exactly:
+
+* Target tenancy name: **4dev**
+
+* Target tenancy OCID: **ocid1.tenancy.oc1..fdgdgdgdgd**
+
+* Compartment OCID: **ocid1.compartment.oc1..fssfs**
+
+* Source tenancy name: **dev**
+
+* Dynamic group name (calling tenancy): **alv-its003p-gitlab-001-nodes**
+
+Policy requirements:
+
+1. In tenancy **4dev**, allow **any user from tenancy dev** to **manage dns-records** in the given compartment.
+2. The allow rule must include this condition block exactly:
+
+   ```
+   all {
+     request.principal.type = 'workload',
+     request.principal.namespace = 'cert-manager'
+   }
+   ```
+3. The calling tenancy (**dev**) must include an **ENDORSE** policy.
+4. The endorse policy must allow the dynamic group
+   **alv-its003p-gitlab-001-nodes**
+   to **read compartments** in tenancy **dev**.
+
+========================================================================
+
+# Limitations.txt
+------------------------------------------------------------------------
+when writing policies for OKE - Oracle Kubernetes Engine, dont use Dynamic Groups. Always use the service_account, cluster_id and namespace request context variables.
+
+when you use tags *, in are all wrong. Only exact value like target.resource.tag.governance.environment='Prod' is allowed
+
+When using Tag based policies, Inspect will not work and create new resources will not work. So, write policies using without tags when you have to grant create or inspect permissions.
+
+========================================================================
+
+# best_practices.txt
+------------------------------------------------------------------------
+In a policy, for allow statement - if verb manage is used, no need to seperately write policy statement for Inspect and Read it includes all permissions
+
+
+In a policy, for Deny statement - if verb inspect is used, no need to seperately write policy statement for read and manage it includes all permissions
+
+========================================================================
+
+# Latest_Policy_Statements.txt
+------------------------------------------------------------------------
+### Policy Example 1: Allow group to manage all objects in a compartment
+Policy:
+allow group DataAdmins to manage buckets in compartment MyProject
+Explanation:
+Grants full management access to Object Storage buckets in the specified compartment.
+
+### Policy Example 2: Tag-based policy for network read access
+Policy:
+allow group any-group to read virtual-network-family in tenancy
+where target.tag.NetworkAccess.read = 'true'
+Explanation:
+Grants read-only access to network resources when the resource is tagged with `NetworkAccess.read=true`.
+
+### Policy Example 3: Allow dynamic group for function access
+Policy:
+allow dynamic-group fn-group to use object-family in compartment Dev
+Explanation:
+Permits all functions in the `fn-group` dynamic group to read and write from Object Storage.
+
+========================================================================

@@ -1,0 +1,81 @@
+1. Request Variables (who, where, when, how)
+
+Object Storage service has special variables
+
+target.bucket.name - bucket name
+
+target.bucket.tag.<TagNamespace>.<TagKeyDefinition> - bucket tag
+
+request.user.id — OCID of the calling user
+
+request.user.name — Name of the calling user
+
+request.groups.id — List of group OCIDs the user belongs to
+
+request.groups.name — List of group names the user belongs to
+
+request.principal.id - requesting principal OCID value
+
+request.principal.type - Resource type (example: user,instance, bucket)
+
+request.permission — Permission being evaluated
+
+request.operation — API operation name (example: CreateInstance)
+
+request.region — 3-letter region key (example: IAD, PHX)
+
+request.networkSource.name — Network source name (IP allow list)
+
+Time-based (UTC):
+
+request.utc-timestamp — Full timestamp (ISO 8601)
+
+request.utc-timestamp.month-of-year — 1–12
+
+request.utc-timestamp.day-of-month — 1–31
+
+request.utc-timestamp.day-of-week — Monday–Sunday
+
+request.utc-timestamp.time-of-day — Time range (ISO 8601 interval)
+
+2. Target Variables (what resource is being accessed)
+
+target.compartment.id — OCID of the target compartment
+
+target.compartment.name — Name of the target compartment
+
+target.resource.id — OCID of the target resource
+
+target.resource.type — Resource type (example: instance, bucket)
+
+3. Target Tag Variables (resource metadata)
+
+Defined tags:
+
+target.resource.tag.<namespace>.<key> — Value of a defined tag
+
+Freeform tags:
+
+target.resource.freeformTag.<key> — Value of a freeform tag
+
+4. Request Tag Variables (tags passed in create/update calls)
+
+Used when enforcing rules on new or updated resources.
+
+Defined tags:
+
+request.resource.tag.<namespace>.<key>
+
+Freeform tags:
+
+request.resource.freeformTag.<key>
+
+5. Example Policy Condition Snippets
+allow group Admins to manage all-resources
+where request.region = 'IAD'
+
+allow group Devs to manage instance-family
+where target.resource.tag.CostCenter = 'ENG'
+
+allow group CICD to manage buckets
+where request.utc-timestamp.day-of-week = 'Saturday'

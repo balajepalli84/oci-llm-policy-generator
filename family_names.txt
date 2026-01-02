@@ -1,0 +1,230 @@
+# OCI IAM Policy Language – Resource Families and Context
+
+**LLM Training Prompt (Single Page)**
+
+This document defines **Oracle Cloud Infrastructure (OCI) IAM resource families**, their **purpose**, and the **resource-type vocabulary** associated with each family.
+Resource families are **aggregate policy targets**. Granting access to a family grants access to all included resource-types.
+
+Policies follow this grammar:
+
+```
+allow <subject> to <verb> <resource-type or family> in <location> where <conditions>
+```
+
+---
+
+## Core Infrastructure Families
+
+### virtual-network-family
+
+Controls **all networking constructs** inside OCI Virtual Cloud Networks (VCNs).
+Use this family to manage connectivity, routing, security boundaries, and traffic flow.
+
+Includes:
+vcns, subnets, route-tables, security-lists, network-security-groups, internet-gateways, nat-gateways, service-gateways, local-peering-gateways, remote-peering-connections, drg-object, drg-attachments, drg-route-tables, drg-route-distributions, ipsec-connections, cross-connects, cross-connect-groups, virtual-circuits, vlans, vnics, vnic-attachments, private-ips, public-ips, publicippool, byoiprange, capture-filters, vtaps, ipv6s, dhcp-options, ipam
+
+---
+
+### instance-family
+
+Controls **Compute instances and their direct lifecycle operations**.
+
+Includes:
+instances, instance-console-connection, console-histories, instance-images, app-catalog-listing
+
+---
+
+### compute-management-family
+
+Controls **higher-level compute orchestration and scaling**.
+
+Includes:
+instance-configurations, instance-pools, cluster-networks, auto-scaling-configurations, dedicated-vm-hosts, compute-clusters, compute-capacity-reservations, compute-capacity-reports, work-requests
+
+---
+
+### instance-agent-family
+
+Controls **software agents running inside compute instances**.
+
+Includes:
+instance-agent-plugins
+
+---
+
+### instance-agent-command-family
+
+Controls **remote command execution via the OCI instance agent**.
+
+Includes:
+instance-agent-commands
+
+---
+
+### volume-family
+
+Controls **block storage and boot storage**.
+
+Includes:
+volumes, volume-attachments, volume-backups, boot-volume-backups, backup-policies, backup-policy-assignments, volume-groups, volume-group-backups
+
+---
+
+## Container and Platform Services
+
+### cluster-family
+
+Controls **Oracle Kubernetes Engine (OKE)** resources.
+
+Includes:
+clusters, cluster-node-pools, cluster-work-requests
+
+---
+
+### object-family
+
+Controls **Object Storage and Archive Storage**.
+
+Includes:
+objectstorage-namespaces, buckets, objects
+
+Key variables:
+target.bucket.name
+target.object.name
+
+---
+
+### file-family
+
+Controls **File Storage Service** (shared NFS storage).
+
+Includes:
+file-systems, mount-targets, export-sets, filesystem-snapshot-policies, outbound-connectors, replications, replication-targets, fss-work-requests
+
+---
+
+### dns
+
+Controls **DNS zones, records, and traffic steering**.
+
+Includes:
+dns-zones, dns-records, dns-steering-policies, dns-steering-policy-attachments, dns-tsig-keys, dns-views, dns-resolvers
+
+---
+
+### email-family
+
+Controls **OCI Email Delivery Service**.
+
+Includes:
+email-domains, approved-senders, suppressions, email-work-requests
+
+---
+
+## Monitoring and Optimization
+
+### appmgmt-family
+
+Controls **Application Management Monitoring**.
+
+Includes:
+appmgmt-monitored-instance, appmgmt-work-request
+
+---
+
+### stack-monitoring-family
+
+Controls **full-stack monitoring and discovery**.
+
+Includes:
+stack-monitoring-resource, stack-monitoring-resource-type, stack-monitoring-task, stack-monitoring-discovery-job, stack-monitoring-work-request, stack-monitoring-metric-extension, stack-monitoring-config, stack-monitoring-baselineable-metric, stack-monitoring-process-set, stack-monitoring-monitoring-template, stack-monitoring-defined-monitoring-template
+
+---
+
+### optimizer-api-family
+
+Controls **Cloud Advisor / Optimizer recommendations**.
+
+Includes:
+optimizer-category, optimizer-enrollment, optimizer-history, optimizer-profile, optimizer-profile-level, optimizer-recommendation, optimizer-recommendation-strategy, optimizer-resource-action, optimizer-resource-metadata, optimizer-workrequest
+
+---
+
+## Data and AI Services
+
+### data-catalog-family
+
+Controls **OCI Data Catalog metadata and governance objects**.
+
+Includes:
+data-catalogs, data-catalog-private-endpoints, data-catalog-data-assets, data-catalog-connections, data-catalog-entities, data-catalog-entity-tags, data-catalog-glossaries, data-catalog-glossary-terms, data-catalog-jobs, data-catalog-job-runs, data-catalog-work-requests
+
+---
+
+### data-science-family
+
+Controls **OCI Data Science workloads and assets**.
+
+Includes:
+data-science-projects, data-science-notebook-sessions, data-science-models, data-science-modelversionsets, data-science-model-deployments, data-science-model-groups, data-science-model-group-version-histories, data-science-jobs, data-science-job-runs, data-science-pipelines, data-science-pipeline-runs, data-science-schedules, data-science-private-endpoint, data-science-work-requests
+
+---
+
+## Database Services
+
+### database-family
+
+Controls **traditional Oracle Database infrastructure**.
+
+Includes:
+db-systems, db-nodes, db-homes, databases, pluggable-databases, db-backups
+
+Used by:
+Base Database Service, Exadata Cloud Infrastructure, Exadata Cloud@Customer, Exadata Exascale
+
+---
+
+### autonomous-database-family
+
+Controls **Autonomous Database (serverless)** workloads.
+
+Includes:
+autonomous-databases, autonomous-backups
+
+---
+
+### external-database-family
+
+Controls **externally managed databases registered in OCI**.
+
+Includes:
+external-container-databases, external-pluggable-databases, external-non-container-databases, external-database-connectors
+
+---
+
+### db-multi-cloud-family
+
+Controls **multi-cloud database connectivity** (Exadata-related).
+
+Includes:
+cloud-exadata-infrastructures, cloud-vmclusters and related scheduling objects
+
+---
+
+## Key Training Notes (Critical)
+
+* Family names are **policy shortcuts**, not API resources.
+* Families expand to individual resource-types at evaluation time.
+* Most services support **only general variables** unless explicitly listed.
+* Verb semantics (`inspect`, `read`, `use`, `manage`) are **consistent across families**.
+
+---
+
+If you want, next we can:
+
+* Convert this into **JSON training data**
+* Add **verb-to-permission mappings**
+* Add **negative examples** (what a family does NOT cover)
+* Normalize this for **RAG ingestion**
+
+Tell me the next step and we will move forward.

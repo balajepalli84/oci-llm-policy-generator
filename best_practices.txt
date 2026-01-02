@@ -1,0 +1,4 @@
+In a policy, for allow statement - if verb manage is used, no need to seperately write policy statement for Inspect and Read it includes all permissions
+
+
+In a policy, for Deny statement - if verb inspect is used, no need to seperately write policy statement for read and manage it includes all permissions
