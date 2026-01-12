@@ -117,7 +117,7 @@ The prompt is intentionally:
 
 As shown in the screenshot, the agent follows the organizational guidelines defined in the reference files and avoids unsupported patterns such as tag-based policies.
 
-
+<img width="866" height="797" alt="llm_blog" src="https://github.com/user-attachments/assets/35c13806-f1c0-4b99-a0d6-e0d5a4035810" />
 
 ### Step 3: Review the Generated Policy Output
 
@@ -130,8 +130,6 @@ The generated policy:
 
 At this stage, the policy is a **draft**.
 It must still be reviewed and tested before deployment.
-<img width="866" height="797" alt="llm_blog" src="https://github.com/user-attachments/assets/35c13806-f1c0-4b99-a0d6-e0d5a4035810" />
-
 
 ## A Word on Hallucinations and Testing
 
