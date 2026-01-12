@@ -115,7 +115,7 @@ The prompt is intentionally:
 * Explicit about constraints
 * Grounded in the provided policy reference files
 
-As shown in the screenshot, the agent follows the organizational guidelines defined in the reference files and avoids unsupported patterns such as tag-based policies.
+As shown in the screenshot, the agent operates in line with this organization’s internal governance standards. In this environment, tag-based policies are intentionally not supported, as they fall outside the organization’s approved policy model defined in the reference files.
 
 <img width="866" height="797" alt="llm_blog" src="https://github.com/user-attachments/assets/35c13806-f1c0-4b99-a0d6-e0d5a4035810" />
 
